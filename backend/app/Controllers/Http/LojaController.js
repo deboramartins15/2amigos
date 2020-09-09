@@ -1,93 +1,55 @@
-'use strict'
+"use strict";
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Loja = use("App/Models/Loja");
 
-/**
- * Resourceful controller for interacting with lojas
- */
 class LojaController {
-  /**
-   * Show a list of all lojas.
-   * GET lojas
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+  async index({ response }) {
+    try {
+      return await Loja.all();
+    } catch (error) {
+      return response.status(error.status).send(error);
+    }
   }
 
-  /**
-   * Render a form to be used for creating a new loja.
-   * GET lojas/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  async store({ request, response }) {
+    try {
+      const data = request.only(["login", "senha", "CNPJ", "matriz"]);
+
+      const lojaExists = await Loja.findBy("login", data.login);
+
+      if (lojaExists) {
+        return response
+          .status(400)
+          .send({ message: { error: "Loja já cadastrada" } });
+      }
+
+      const loja = await Loja.create(data);
+
+      return loja;
+    } catch (error) {
+      return response.status(error.status).send(error);
+    }
   }
 
-  /**
-   * Create/save a new loja.
-   * POST lojas
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
+  async show({ params, response }) {
+    try {
+      return await Loja.find(params.id);
+    } catch (error) {
+      return response.status(error.status).send(error);
+    }
   }
 
-  /**
-   * Display a single loja.
-   * GET lojas/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
-  }
+  async update({ params, request }) {
+    const loja = await Loja.findOrFail(params.id);
 
-  /**
-   * Render a form to update an existing loja.
-   * GET lojas/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
+    const data = request.only(["matriz"]);
 
-  /**
-   * Update loja details.
-   * PUT or PATCH lojas/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
+    loja.merge(data);
 
-  /**
-   * Delete a loja with id.
-   * DELETE lojas/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+    await loja.save();
+
+    return loja;
   }
 }
 
-module.exports = LojaController
+module.exports = LojaController;

@@ -17,5 +17,10 @@
 const Route = use('Route')
 
 Route.get('/', () => {
-  return { greeting: 'Hello world in JSON' }
+  return { greeting: '2amigos API' }
 })
+
+Route.post("/signup", "LojaController.store");
+Route.post("/login", "SessionController.create");
+
+Route.resource("loja", "LojaController").apiOnly().middleware("auth");

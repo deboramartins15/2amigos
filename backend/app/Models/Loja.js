@@ -13,8 +13,8 @@ class Loja extends Model {
      * it to the database.
      */
     this.addHook("beforeSave", async (lojaInstance) => {
-      if (lojaInstance.dirty.password) {
-        lojaInstance.password = await Hash.make(lojaInstance.password);
+      if (lojaInstance.dirty.senha) {
+        lojaInstance.senha = await Hash.make(lojaInstance.senha);
       }
     });
   }

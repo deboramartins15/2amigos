@@ -17,6 +17,7 @@ class NotaFiscalSchema extends Schema {
       table.string("SERIE_NF").notNullable()
       table.decimal("TOTAL_NF").notNullable()
       table.decimal('TOTAL_PRODUTOS').notNullable()
+      table.decimal('TOTAL_FRETE').notNullable()
       table.integer('VOLUME').notNullable()
       table.decimal('PESO_LIQ').notNullable()
       table.decimal('PESO_BRUTO').notNullable()

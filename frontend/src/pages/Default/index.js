@@ -3,7 +3,7 @@ import React from "react";
 
 import Header from "../../components/Header";
 
-import { Container, Wrapper } from "./styles";
+import { Container } from "./styles";
 
 function PageDefault({ children }) {
   return (

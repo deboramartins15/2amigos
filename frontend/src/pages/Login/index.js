@@ -31,7 +31,7 @@ function Login(props) {
     } else {
       try {
         const response = await api.post("/login", { login, senha });
-        SignIn(response.data.token, response.data.lojaId);
+        SignIn(response.data.token, response.data.lojaId, response.data.matriz);
         props.history.push("/dashboard");
       } catch (err) {
         console.log(err)

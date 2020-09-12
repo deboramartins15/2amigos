@@ -8,9 +8,9 @@ class SessionController {
 
     const token = await auth.attempt(login, senha);
 
-    const { id } = await Loja.findBy("login", login);
+    const { id, matriz } = await Loja.findBy("login", login);
 
-    return { token, lojaId: id };
+    return { token, lojaId: id, matriz };
   }
 }
 

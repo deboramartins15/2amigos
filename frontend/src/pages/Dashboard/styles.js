@@ -6,7 +6,6 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: auto;
 `;
 
 export const UploadWrapper = styled.div`
@@ -21,5 +20,7 @@ export const UploadWrapper = styled.div`
 export const TableWrapper = styled.div`
   width: 90%;
   display: flex;
-  justify-content: center;   
+  justify-content: center;
+  max-height: 470px;
+  overflow-y: auto;
 `;

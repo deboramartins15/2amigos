@@ -27,7 +27,7 @@ class LojaController {
 
       return loja;
     } catch (error) {
-      return response.status(error.status).send(error);
+      return response.send(error);
     }
   }
 

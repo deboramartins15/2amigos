@@ -8,7 +8,7 @@ export const getToken = () => localStorage.getItem(TOKEN_KEY);
 
 export const getUserId = () => localStorage.getItem(USER_ID);
 
-export const isMatriz = () => localStorage.getItem(USER_MATRIZ) === true ? true : false;
+export const isMatriz = () => localStorage.getItem(USER_MATRIZ) === 'true' ? true : false
 
 
 export const login = ({ token }, id, matriz) => {  

@@ -82,13 +82,14 @@ class Dashboard extends Component {
   async componentDidMount() {
     try {
       let response = {};
-
-      if (!isMatriz()) {
-        const loja = await api.get(`loja/${getUserId()}`);
-
-        response = await api.get("nf", { headers: { CNPJ: loja.data.CNPJ } });
-      } else {
+      
+      if (isMatriz()) {
+        console.log('entrou')
         response = await api.get("nf");
+      } else {
+        
+        const loja = await api.get(`loja/${getUserId()}`);
+        response = await api.get("nf", { headers: { CNPJ: loja.data.CNPJ } });
       }
 
       this.setState({ ...this.state, nfs: response.data });

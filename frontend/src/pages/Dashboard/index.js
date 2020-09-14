@@ -154,8 +154,8 @@ class Dashboard extends Component {
           <UploadWrapper className="upload-wrapper">
             <Upload onUpload={this.handleUpload} />
           </UploadWrapper>
-          <TableWrapper className="table-wrapper-scroll-y my-custom-scrollbar">
-            <Table responsive striped hover>
+          <TableWrapper>
+            <Table responsive hover>
               <thead>
                 <tr>
                   {columnsNF.map((column) => (

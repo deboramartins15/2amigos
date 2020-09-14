@@ -25,3 +25,5 @@ Route.post("/login", "SessionController.create");
 
 Route.resource("loja", "LojaController").apiOnly().middleware("auth");
 Route.resource("nf", "NotaFiscalController").apiOnly().middleware("auth");
+
+Route.get("/leitura/:codBarra","NotaFiscalController.findByCodBarra").middleware("auth")

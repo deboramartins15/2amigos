@@ -38,18 +38,20 @@ class Dashboard extends Component {
     uploadedFiles.forEach(this.processUpload);
   };
 
-  updateFile = (id, data) => {
+  updateFile = async (id, data) => {
+    const nfs = await this.fetchData()
+
     this.setState({
       uploadedFiles: this.state.uploadedFiles.map((uploadedFile) => {
         return id === uploadedFile.id
           ? { ...uploadedFile, ...data }
           : uploadedFile;
       }),
+      nfs: nfs.data
     });
   };
 
   processUpload = (uploadedFile, index) => {
-    console.log(index);
     const data = new FormData();
 
     data.append("file", uploadedFile.file, uploadedFile.name);
@@ -80,19 +82,22 @@ class Dashboard extends Component {
   };
 
   async componentDidMount() {
+    const nfs = await this.fetchData()
+    this.setState({ ...this.state, nfs: nfs.data });
+  }
+
+  async fetchData() {
     try {
       let response = {};
-      
+
       if (isMatriz()) {
-        console.log('entrou')
         response = await api.get("nf");
       } else {
-        
         const loja = await api.get(`loja/${getUserId()}`);
         response = await api.get("nf", { headers: { CNPJ: loja.data.CNPJ } });
       }
 
-      this.setState({ ...this.state, nfs: response.data });
+      return response      
     } catch (error) {
       console.log(error);
     }
@@ -105,28 +110,12 @@ class Dashboard extends Component {
         text: "Chave",
       },
       {
-        dataField: "NUMERO_NF",
-        text: "Numero",
-      },
-      {
-        dataField: "SERIE_NF",
-        text: "Serie",
-      },
-      {
         dataField: "DT_EMISSAO",
         text: "Emissão",
       },
       {
         dataField: "TOTAL_NF",
         text: "Total NF",
-      },
-      {
-        dataField: "TOTAL_PRODUTOS",
-        text: "Total Produtos",
-      },
-      {
-        dataField: "total_frete",
-        text: "Total Frete",
       },
       {
         dataField: "CNPJ_EMISSOR",
@@ -168,14 +157,10 @@ class Dashboard extends Component {
                   return (
                     <tr key={nf.id}>
                       <td>{nf.CHAVE_NF}</td>
-                      <td>{nf.NUMERO_NF}</td>
-                      <td>{nf.SERIE_NF}</td>
                       <td>
                         {new Date(nf.DT_EMISSAO).toLocaleDateString("pt-BR")}
                       </td>
                       <td>{nf.TOTAL_NF}</td>
-                      <td>{nf.TOTAL_PRODUTOS}</td>
-                      <td>{nf.total_frete}</td>
                       <td>{nf.CNPJ_EMISSOR}</td>
                       <td>{nf.CNPJ_FAVORECIDO}</td>
                       <td>{nf.RAZAOSOCIAL_EMISSOR}</td>

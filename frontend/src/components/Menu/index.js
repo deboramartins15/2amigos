@@ -21,6 +21,11 @@ function Menu(props) {
           </MenuItem>
         )}
         <MenuItem>
+          <Link to="/leitura" >
+            Leitura NF
+          </Link>
+        </MenuItem>
+        <MenuItem>
           <Link to="/" onClick={handleSignOut}>
             Sair
           </Link>

@@ -7,12 +7,12 @@ const { getJsonFromXML } = use("App/Utils");
 class NotaFiscalController {
   async index({ request, response }) {
     try {
-      const CNPJ = request.header('CNPJ')
+      const CNPJ = request.header("CNPJ");
 
-      if(CNPJ){
-        return NotaFiscal.query().where('CNPJ_FAVORECIDO','=',CNPJ).fetch()
-      }else{
-        return NotaFiscal.all()
+      if (CNPJ) {
+        return NotaFiscal.query().where("CNPJ_FAVORECIDO", "=", CNPJ).fetch();
+      } else {
+        return NotaFiscal.all();
       }
     } catch (error) {
       return response.status(error.status).send(error);
@@ -41,7 +41,7 @@ class NotaFiscalController {
         DT_EMISSAO: new Date(NF.nfeProc.NFe.infNFe.ide.dhEmi).toLocaleString(
           "pt-br"
         ),
-        CHAVE_NF: NF.nfeProc.NFe.infNFe.ide.cNF,
+        CHAVE_NF: NF.nfeProc.protNFe.infProt.chNFe,
         NUMERO_NF: NF.nfeProc.NFe.infNFe.ide.nNF,
         SERIE_NF: NF.nfeProc.NFe.infNFe.ide.serie,
         TOTAL_NF: NF.nfeProc.NFe.infNFe.total.ICMSTot.vNF,
@@ -112,7 +112,7 @@ class NotaFiscalController {
 
       await NF.save();
 
-      return NF
+      return NF;
     } catch (error) {
       return response.status(error.status).send(error);
     }
@@ -125,6 +125,27 @@ class NotaFiscalController {
       await nf.delete();
     } catch (error) {
       return response.status(error.status).send(error);
+    }
+  }
+
+  async findByCodBarra({ params, response, request }) {
+    try {
+      const CNPJ = request.header("CNPJ");      
+      const NF = await NotaFiscal.findBy("CHAVE_NF", params.codBarra);
+
+      if (CNPJ) {
+        if (NF.CNPJ_FAVORECIDO !== CNPJ) {          
+          return response
+            .status(400)
+            .send({
+              error: "Nota fiscal não é visivel para a loja solicitante",
+            });
+        }
+      }
+
+      return NF
+    } catch (error) {
+      return response.send(error);
     }
   }
 }

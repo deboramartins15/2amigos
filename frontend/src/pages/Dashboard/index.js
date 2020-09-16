@@ -5,12 +5,12 @@ import filesize from "filesize";
 import PageDefault from "../Default";
 import Upload from "../../components/Upload";
 import ModalUpload from "../../components/ModalUpload";
+import TabelaPaginacao from '../../components/TablePagination/TabelaPaginacao'
 
 import api from "../../services/api";
 import { getUserId, isMatriz } from "../../services/auth";
 
 import { Container, UploadWrapper, TableWrapper } from "./styles";
-import { Table } from "reactstrap";
 
 class Dashboard extends Component {
   state = {
@@ -106,29 +106,25 @@ class Dashboard extends Component {
   render() {
     const columnsNF = [
       {
-        dataField: "CHAVE_NF",
-        text: "Chave",
+        name: "CNPJ Emissor",
+        prop: "CNPJ_EMISSOR",
+      },            
+      {
+        name: "Razão Favorecido",
+        prop: "RAZAOSOCIAL_FAVORECIDO",
       },
       {
-        dataField: "DT_EMISSAO",
-        text: "Emissão",
+        name: "Emissão",
+        prop: "DT_EMISSAO",
+      }, 
+      {
+        name: "Chave",
+        prop: "CHAVE_NF",
       },
       {
-        dataField: "TOTAL_NF",
-        text: "Total NF",
-      },
-      {
-        dataField: "CNPJ_EMISSOR",
-        text: "CNPJ Emissor",
-      },
-      {
-        dataField: "CNPJ_FAVORECIDO",
-        text: "CNPJ Favorecido",
-      },
-      {
-        dataField: "RAZAOSOCIAL_EMISSOR",
-        text: "Razão Favorecido",
-      },
+        name: "Total NF",
+        prop: "TOTAL_NF",
+      }
     ];
     const { uploadedFiles, nfs } = this.state;
     const uploading =
@@ -144,31 +140,11 @@ class Dashboard extends Component {
             <Upload onUpload={this.handleUpload} />
           </UploadWrapper>
           <TableWrapper>
-            <Table responsive hover>
-              <thead>
-                <tr>
-                  {columnsNF.map((column) => (
-                    <th key={column.dataField}>{column.text}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {nfs.map((nf) => {
-                  return (
-                    <tr key={nf.id}>
-                      <td>{nf.CHAVE_NF}</td>
-                      <td>
-                        {new Date(nf.DT_EMISSAO).toLocaleDateString("pt-BR")}
-                      </td>
-                      <td>{nf.TOTAL_NF}</td>
-                      <td>{nf.CNPJ_EMISSOR}</td>
-                      <td>{nf.CNPJ_FAVORECIDO}</td>
-                      <td>{nf.RAZAOSOCIAL_EMISSOR}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
+            <TabelaPaginacao
+              registrosPorPagina={5}
+              fonteDeDados={nfs}
+              colunas={[ ...columnsNF ]}              
+            />
           </TableWrapper>
         </Container>
       </PageDefault>

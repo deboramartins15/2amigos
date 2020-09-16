@@ -88,17 +88,18 @@ function Leitura() {
                     placeholder="Cód. Barras.."
                     value={codBarra}
                     onChange={(e) => setCodBarra(e.target.value)}
+                    autoFocus
                   />
                 </FormGroup>
               </Col>
             </Row>
             <Row xs="2">
-              <Col xs="1">
+              <Col xs="auto">
                 <Button color="primary" onClick={handleLeitura}>
                   Conferir
                 </Button>
               </Col>
-              <Col xs="1">
+              <Col xs="auto">
                 <Button color="secondary" onClick={handleReset}>
                   Cancelar
                 </Button>

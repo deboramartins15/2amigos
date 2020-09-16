@@ -9,6 +9,12 @@ export const Container = styled.div`
   position: absolute;
   top: 50px;
   z-index: 9;
+
+  @media(max-width:360px){
+    height: calc(100vh - 50px);
+    width: 100%;
+    top: 50px;
+  }
 `;
 
 export const MenuList = styled.ul`
@@ -20,6 +26,14 @@ export const MenuList = styled.ul`
   display: flex;
   flex-direction: column;
   align-items:flex-start;
+
+  @media(max-width:360px){
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
 `;
 
 export const MenuItem = styled.li`

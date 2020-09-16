@@ -8,17 +8,28 @@ export const Wrapper = styled.div`
   align-items: center;
   position: absolute;
   top: 80px;
-  
+
   > span {
     height: 20px;
     color: red;
     margin-bottom: 16px;
   }
+
+  @media (max-width: 360px) {
+    height: calc(100vh - 70px);
+    width: 100%;
+    top: 60px;
+  }
 `;
 
-export const TableWrapper = styled.div`  
+export const TableWrapper = styled.div`
   display: flex;
   justify-content: center;
   max-height: 350px;
   overflow-y: auto;
+  margin-top: 40px;
+
+  @media (max-width: 360px) {
+    margin-top: 16px;
+  }
 `;

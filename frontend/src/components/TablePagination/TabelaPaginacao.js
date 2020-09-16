@@ -1,22 +1,14 @@
 import React from "react";
 
-import { Form, Input, Table } from "reactstrap";
+import { Form, Input, Table, Container, Row, Col } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSort } from "@fortawesome/free-solid-svg-icons";
+import {
+  faSort,
+  faSortDown,
+  faSortUp,
+} from "@fortawesome/free-solid-svg-icons";
 
 import "./Table.css";
-
-// const tiposOrdenacao = {
-//   up: {
-//     class: "SortUp",
-//   },
-//   down: {
-//     class: "SortDown",
-//   },
-//   default: {
-//     class: "Sort",
-//   },
-// };
 
 function VerificarOrdenacao(chaveOrdenacao, currentOrder) {
   if (currentOrder === "up") {
@@ -33,10 +25,13 @@ class TabelaPaginacao extends React.Component {
     super();
     this.state = {
       itensPaginacao: [],
+      itensPesquisa: [],
+      itensOrdenados: [],
       paginador: {},
       ordenacaoAtual: "default",
       textoParaPesquisar: "",
-      colunaParaPesquisar: "NomeVisitante",
+      colunaParaPesquisar: "selecionar",
+      iconOrdenacao: faSort,
     };
 
     this.onPesquisar = this.onPesquisar.bind(this);
@@ -51,12 +46,19 @@ class TabelaPaginacao extends React.Component {
 
   setPage(pagina, dadosParaPaginar = null) {
     var { registrosPorPagina, fonteDeDados } = this.props;
+    var { itensPesquisa, itensOrdenados } = this.state;
     var listaDeRegistros = [];
 
-    if (dadosParaPaginar == null) {
-      listaDeRegistros = fonteDeDados;
-    } else {
+    if (dadosParaPaginar) {
       listaDeRegistros = dadosParaPaginar;
+    } else {
+      if (itensPesquisa.length > 0) {
+        listaDeRegistros = itensPesquisa;
+      } else if (itensOrdenados.length > 0) {
+        listaDeRegistros = itensOrdenados;
+      } else {
+        listaDeRegistros = fonteDeDados;
+      }
     }
 
     var paginador = this.state.paginador;
@@ -110,11 +112,29 @@ class TabelaPaginacao extends React.Component {
   onPesquisar(texto) {
     const textoPesquisaMinimizado = texto.toLowerCase();
     this.setState({ textoParaPesquisar: texto });
-    var listagem = this.props.fonteDeDados.filter((x) =>
-      x[this.state.colunaParaPesquisar]
-        .toLowerCase()
-        .includes(textoPesquisaMinimizado)
-    );
+    let listagem;
+
+    if (this.state.colunaParaPesquisar === "selecionar") return;
+
+    if (this.state.colunaParaPesquisar === "matriz") {
+      listagem = this.props.fonteDeDados.filter((x) => {
+        if (textoPesquisaMinimizado === "sim") {
+          console.log("entrou");
+          return x[this.state.colunaParaPesquisar] === true;
+        } else if (textoPesquisaMinimizado === "não") {
+          return x[this.state.colunaParaPesquisar] === false;
+        } else return x;
+      });
+    } else {
+      listagem = this.props.fonteDeDados.filter((x) =>
+        x[this.state.colunaParaPesquisar]
+          .toString()
+          .toLowerCase()
+          .includes(textoPesquisaMinimizado)
+      );
+    }
+
+    this.setState({ itensPesquisa: listagem });
     this.setPage(this.props.paginaInicial, listagem);
   }
 
@@ -122,6 +142,8 @@ class TabelaPaginacao extends React.Component {
     const { ordenacaoAtual } = this.state;
     let proximaOrdenacao;
     let dadosOrdenados;
+    let icon;
+
     if (ordenacaoAtual === "down") proximaOrdenacao = "up";
     else if (ordenacaoAtual === "up") proximaOrdenacao = "default";
     else if (ordenacaoAtual === "default") proximaOrdenacao = "down";
@@ -136,7 +158,23 @@ class TabelaPaginacao extends React.Component {
       );
     }
 
-    this.setState({ ordenacaoAtual: proximaOrdenacao });
+    switch (proximaOrdenacao) {
+      case "up":
+        icon = faSortUp;
+        break;
+      case "down":
+        icon = faSortDown;
+        break;
+      default:
+        icon = faSort;
+        break;
+    }
+
+    this.setState({
+      ordenacaoAtual: proximaOrdenacao,
+      itensOrdenados: dadosOrdenados,
+      iconOrdenacao: icon,
+    });
     this.setPage(this.props.paginaInicial, dadosOrdenados);
   }
 
@@ -156,7 +194,7 @@ class TabelaPaginacao extends React.Component {
                 paginador.paginaAtual === 1 ? "page-item disabled" : "page-item"
               }
             >
-              <button onClick={() => this.setPage(1)} className="page-link">
+              <button onClick={() => this.setPage(1)} className="primeiro-btn page-link">
                 Primeiro
               </button>
             </li>
@@ -224,21 +262,23 @@ class TabelaPaginacao extends React.Component {
   };
 
   render() {
-    const { itensPaginacao } = this.state;
+    const { itensPaginacao, iconOrdenacao } = this.state;
     const { fonteDeDados, colunas, acoes, espacoBotoesAcoes } = this.props;
     var existeAcoes = acoes && acoes.length > 0;
 
     return (
-      <div className="container mt-5">
-        <div className="form-group">
-          <Form inline>
-            <Input
-              style={{ padding: "10" }}
-              type="text"
-              placeholder="Pesquisar"
-              onChange={(e) => this.onPesquisar(e.target.value)}
-            />
-            <div>
+      <Container>
+        <Form inline>
+          <Row className="mb-2">
+            <Col>
+              <Input
+                style={{ padding: "10" }}
+                type="text"
+                placeholder="Pesquisar"
+                onChange={(e) => this.onPesquisar(e.target.value)}
+              />
+            </Col>
+            <Col>
               <select
                 style={{ marginLeft: 10 }}
                 className={`custom-select form-control`}
@@ -246,6 +286,9 @@ class TabelaPaginacao extends React.Component {
                   this.setState({ colunaParaPesquisar: e.target.value })
                 }
               >
+                <option key={0} value="selecionar">
+                  Selecionar..
+                </option>
                 {colunas.map(function (data, key) {
                   return (
                     <option key={key} value={data.prop}>
@@ -254,9 +297,9 @@ class TabelaPaginacao extends React.Component {
                   );
                 })}
               </select>
-            </div>
-          </Form>
-        </div>
+            </Col>
+          </Row>
+        </Form>
 
         <Table striped bordered hover>
           <thead>
@@ -269,7 +312,7 @@ class TabelaPaginacao extends React.Component {
                   <FontAwesomeIcon
                     style={{ marginRight: 10, cursor: "pointer" }}
                     onClick={(e) => this.onSort(coluna.prop)}
-                    icon={faSort}
+                    icon={iconOrdenacao}
                   ></FontAwesomeIcon>
                   {coluna.name}
                 </th>
@@ -285,11 +328,11 @@ class TabelaPaginacao extends React.Component {
                       {acoes.map((acao) => (
                         <button
                           key={acao.nome}
-                          onClick={() => acao.click(linha)}
+                          onClick={(e) => acao.click(e, linha.id)}
                           style={{ marginRight: 10 }}
                           className={acao.class}
                         >
-                          <i className={acao.icone}></i>
+                          {acao.nome}
                         </button>
                       ))}
                     </td>
@@ -304,7 +347,15 @@ class TabelaPaginacao extends React.Component {
                             )}
                           </td>
                         );
-                      } else return <td key={coluna}>{linha[coluna]}</td>;
+                      }
+                      if (coluna === "matriz") {
+                        return (
+                          <td key={coluna}>
+                            {linha[coluna] === true ? "Sim" : "Não"}
+                          </td>
+                        );
+                      }
+                      return <td key={coluna}>{linha[coluna]}</td>;
                     } else {
                       return null;
                     }
@@ -322,7 +373,7 @@ class TabelaPaginacao extends React.Component {
         </Table>
 
         {fonteDeDados.length > 0 && <this.renderizarPaginacao />}
-      </div>
+      </Container>
     );
   }
 }

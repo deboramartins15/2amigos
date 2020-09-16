@@ -13,10 +13,10 @@ import {
   Input,
   Button,
   Alert,
-  Table,
 } from "reactstrap";
 
 import { Wrapper, TableWrapper } from "./styles.js";
+import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
 
 const initialState = {
   id: 0,
@@ -28,24 +28,16 @@ const initialState = {
 
 const columnsLoja = [
   {
-    dataField: "id",
-    text: "ID",
+    prop: "login",
+    name: "Login",
   },
   {
-    dataField: "login",
-    text: "Login",
+    prop: "CNPJ",
+    name: "CNPJ",
   },
   {
-    dataField: "CNPJ",
-    text: "CNPJ",
-  },
-  {
-    dataField: "matriz",
-    text: "Matriz",
-  },
-  {
-    dataField: "action",
-    text: "Ação",
+    prop: "matriz",
+    name: "Matriz",
   },
 ];
 
@@ -185,12 +177,12 @@ function Config() {
               </Col>
             </Row>
             <Row>
-              <Col xs="1">
+              <Col xs="auto">
                 <Button color="primary" className="mt-2" onClick={handleSave}>
                   Salvar
                 </Button>
               </Col>
-              <Col xs="1">
+              <Col xs="auto">
                 <Button
                   color="secondary"
                   className="mt-2"
@@ -202,37 +194,14 @@ function Config() {
             </Row>
           </Form>
           <TableWrapper>
-            <Table responsive hover className="mt-4">
-              <thead>
-                <tr>
-                  {columnsLoja.map((column) => (
-                    <th key={column.dataField}>{column.text}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {lojas.map((loja) => {
-                  return (
-                    <tr key={loja.id}>
-                      <td>{loja.id}</td>
-                      <td>{loja.login}</td>
-                      <td>{loja.CNPJ}</td>
-                      <td>
-                        {loja.matriz && loja.matriz === true ? "Sim" : "Não"}
-                      </td>
-                      <td>
-                        <Button
-                          color="info"
-                          onClick={(e) => fetchLoja(e, loja.id)}
-                        >
-                          Editar
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
+            <TabelaPaginacao
+              registrosPorPagina={2}
+              fonteDeDados={lojas}
+              colunas={[...columnsLoja]}
+              acoes={[
+                { nome: "Editar", click: fetchLoja, class: "btn btn-info" },
+              ]}
+            />
           </TableWrapper>
         </Container>
       </Wrapper>

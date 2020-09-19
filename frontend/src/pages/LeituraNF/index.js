@@ -29,6 +29,11 @@ function Leitura() {
     e.preventDefault();
 
     try {
+      if(!codBarra){
+        setMsgError("danger","Informe o código de barra da NF !")
+        return
+      }
+
       let nf;
 
       if (isMatriz()) {
@@ -41,7 +46,7 @@ function Leitura() {
       }
 
       if (nf.status === 204) {
-        setMsg({ color: "warning", message: "Nota fiscal não importada !" });
+        setMsgError("warning","Nota fiscal não importada !");
       } else {
         const response = await api.put(`nf/${nf.data.id}`, {
           status: "Recebida",
@@ -50,21 +55,24 @@ function Leitura() {
         });
         
         if (response.status === 200) {
-          setMsg({
-            color: "success",
-            message: "Nota fiscal recebida com sucesso !",
-          });
+          setMsgError("success","Nota fiscal recebida com sucesso !");
+          handleReset()
         }
       }
-    } catch (error) {
-      setMsg({ color: "danger", message: error });
+    } catch (error) {      
+      setMsgError("danger",error.response.data.error
+      ? error.response.data.error
+      : error.response.data.detail)
     }
   };
 
-  const handleReset = async (e) => {
-    e.preventDefault();
-    setCodBarra("");
-    setMsg({ color: "", message: "" });
+  const handleReset = async () => {
+    setCodBarra("");    
+  };
+
+  const setMsgError = (color, msg) => {
+    setMsg({ color: color, message: msg });
+    setVisible(true);
   };
 
   return (

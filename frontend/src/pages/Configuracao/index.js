@@ -48,7 +48,10 @@ function Config() {
   const [visible, setVisible] = useState(true);
   const [disabled, setDisabled] = useState(false);
 
-  const onDismiss = () => setVisible(false);
+  const onDismiss = () => {
+    setVisible(false);
+    setMsg({ color: "", message: "" });
+  };
 
   async function fetchData() {
     try {
@@ -70,24 +73,31 @@ function Config() {
     try {
       const { login, senha, CNPJ, matriz } = loja;
 
+      if (!login || !senha || !CNPJ) {        
+        setMsgError("danger","Campos Login e/ou Senha e/ou CNPJ em branco !")
+        return;
+      }
+
       if (loja.id) {
         await api.put(`/loja/${loja.id}`, { matriz });
       } else {
         await api.post(`/loja`, { login, senha, CNPJ, matriz });
       }
 
-      setMsg({ color: "success", message: "Loja alterada com sucesso !" });
+      
+      setMsgError("success","Loja alterada com sucesso !")
       handleReset();
-    } catch (error) {
-      setMsg({ color: "danger", message: error });
+    } catch (error) {      
+      setMsgError("danger",error.response.data.error
+      ? error.response.data.error
+      : error.response.data.detail)
     }
   };
 
-  const handleReset = async (e) => {
+  const handleReset = async () => {
     setLoja(initialState);
     setDisabled(false);
     fetchData();
-    setMsg({ color: "", message: "" });
   };
 
   const fetchLoja = async (e, id) => {
@@ -100,6 +110,11 @@ function Config() {
     } catch (error) {
       setMsg(error.data.error);
     }
+  };
+
+  const setMsgError = (color, msg) => {
+    setMsg({ color: color, message: msg });
+    setVisible(true);
   };
 
   return (

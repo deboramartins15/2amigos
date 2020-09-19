@@ -28,7 +28,7 @@ async function getJsonFromXML(xml){
   await xml.move(Helpers.tmpPath("uploads"), {
     name: crypto.randomBytes(16).toString("hex") + "-" + xml.clientName,
     overwrite: true,
-  });
+  });  
 
   if (!xml.moved()) {
     return xml.error();

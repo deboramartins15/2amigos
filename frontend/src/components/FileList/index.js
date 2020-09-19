@@ -6,8 +6,8 @@ import { Container, FileInfo } from "./styles";
 
 const FileList = ({ files }) => (
   <Container>
-    {files.map(uploadedFile => (
-      <li key={uploadedFile.name}>
+    {files.map((uploadedFile, key) => (
+      <li key={key}>
         <FileInfo>
           <div>
             <strong>{uploadedFile.name}</strong>

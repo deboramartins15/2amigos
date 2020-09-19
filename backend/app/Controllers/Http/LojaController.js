@@ -20,14 +20,14 @@ class LojaController {
       if (lojaExists) {
         return response
           .status(400)
-          .send({ message: { error: "Loja já cadastrada" } });
+          .send({ error: "Loja já cadastrada" });
       }
 
       const loja = await Loja.create(data);
 
       return loja;
     } catch (error) {
-      return response.send(error);
+      return response.status(400).send(error);
     }
   }
 

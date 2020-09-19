@@ -24,6 +24,7 @@ class NotaFiscalController {
       const xml = request.file("file", {
         types: ["xml"],
         size: "2mb",
+        extnames:['xml']
       });
 
       const userIntegracao = request.only(["login"]);
@@ -31,7 +32,11 @@ class NotaFiscalController {
         "descricao",
         "Previsao de Recebimento"
       );
-      const NF = await getJsonFromXML(xml);
+      const NF = await getJsonFromXML(xml);      
+
+      if(NF.message){
+        return response.status(400).send(NF.message)
+      }
 
       const data = {
         CNPJ_EMISSOR: NF.nfeProc.NFe.infNFe.emit.CNPJ,

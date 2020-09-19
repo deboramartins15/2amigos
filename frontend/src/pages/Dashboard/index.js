@@ -128,7 +128,7 @@ class Dashboard extends Component {
     ];
     const { uploadedFiles, nfs } = this.state;
     const uploading =
-      !!uploadedFiles.length && uploadedFiles[uploadedFiles.length - 1].uploaded
+      !!uploadedFiles.length && (uploadedFiles[uploadedFiles.length - 1].uploaded || uploadedFiles[uploadedFiles.length - 1].error)
         ? true
         : false;
 

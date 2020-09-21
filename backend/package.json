@@ -33,8 +33,7 @@
   "devDependencies": {
     "commitizen": "^4.2.1",
     "cz-conventional-changelog": "3.3.0",
-    "cz-emoji": "^1.2.2",
-    "husky": "^4.3.0"
+    "cz-emoji": "^1.2.2"
   },
   "autoload": {
     "App": "./app"
@@ -42,11 +41,6 @@
   "config": {
     "commitizen": {
       "path": "cz-emoji"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
     }
   }
 }

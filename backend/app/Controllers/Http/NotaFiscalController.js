@@ -2,17 +2,23 @@
 
 const NotaFiscal = use("App/Models/NotaFiscal");
 const Status = use("App/Models/Status");
+const Loja = use("App/Models/Loja");
 
 const { getJsonFromXML } = use("App/Utils");
 class NotaFiscalController {
   async index({ request, response }) {
     try {
       const CNPJ = request.header("CNPJ");
-
+  
       if (CNPJ) {
-        return NotaFiscal.query().where("CNPJ_FAVORECIDO", "=", CNPJ).fetch();
+        return NotaFiscal.query()
+          .where("CNPJ_FAVORECIDO", "=", CNPJ)
+          .with("status")
+          .fetch();
       } else {
-        return NotaFiscal.all();
+        return NotaFiscal.query()
+          .with("status")
+          .fetch();
       }
     } catch (error) {
       return response.status(error.status).send(error);
@@ -24,7 +30,7 @@ class NotaFiscalController {
       const xml = request.file("file", {
         types: ["xml"],
         size: "2mb",
-        extnames:['xml']
+        extnames: ["xml"]
       });
 
       const userIntegracao = request.only(["login"]);
@@ -32,10 +38,10 @@ class NotaFiscalController {
         "descricao",
         "Previsao de Recebimento"
       );
-      const NF = await getJsonFromXML(xml);      
+      const NF = await getJsonFromXML(xml);
 
-      if(NF.message){
-        return response.status(400).send(NF.message)
+      if (NF.message) {
+        return response.status(400).send(NF.message);
       }
 
       const data = {
@@ -57,7 +63,7 @@ class NotaFiscalController {
         PESO_BRUTO: NF.nfeProc.NFe.infNFe.vol.pesoB,
         DT_INTEGRACAO: new Date().toLocaleString("pt-br"),
         USER_INTEGRACAO: userIntegracao.login,
-        STATUS_ID: statusIntegracao.id,
+        STATUS_ID: statusIntegracao.id
       };
 
       return await NotaFiscal.create(data);
@@ -87,28 +93,28 @@ class NotaFiscalController {
           newData = {
             STATUS_ID: statusId.id,
             USER_RECEBIDO: data.login,
-            DT_RECEBIDO: new Date().toLocaleString("pt-br"),
+            DT_RECEBIDO: new Date().toLocaleString("pt-br")
           };
           break;
         case "processamento":
           newData = {
             STATUS_ID: statusId.id,
             USER_PROCESSO: data.login,
-            DT_PROCESSO: new Date().toLocaleString("pt-br"),
+            DT_PROCESSO: new Date().toLocaleString("pt-br")
           };
           break;
         case "expedicao":
           newData = {
             STATUS_ID: statusId.id,
             USER_EXPEDICAO: data.login,
-            DT_EXPEDICAO: new Date().toLocaleString("pt-br"),
+            DT_EXPEDICAO: new Date().toLocaleString("pt-br")
           };
           break;
         case "entregue":
           newData = {
             STATUS_ID: statusId.id,
             USER_ENTREGUE: data.login,
-            DT_ENTREGUE: new Date().toLocaleString("pt-br"),
+            DT_ENTREGUE: new Date().toLocaleString("pt-br")
           };
           break;
       }
@@ -135,20 +141,18 @@ class NotaFiscalController {
 
   async findByCodBarra({ params, response, request }) {
     try {
-      const CNPJ = request.header("CNPJ");      
+      const CNPJ = request.header("CNPJ");
       const NF = await NotaFiscal.findBy("CHAVE_NF", params.codBarra);
 
       if (CNPJ) {
-        if (NF.CNPJ_FAVORECIDO !== CNPJ) {          
-          return response
-            .status(400)
-            .send({
-              error: "Nota fiscal não é visivel para a loja solicitante",
-            });
+        if (NF.CNPJ_FAVORECIDO !== CNPJ) {
+          return response.status(400).send({
+            error: "Nota fiscal não é visivel para a loja solicitante"
+          });
         }
       }
 
-      return NF
+      return NF;
     } catch (error) {
       return response.send(error);
     }

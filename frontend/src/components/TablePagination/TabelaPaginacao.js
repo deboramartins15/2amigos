@@ -12,9 +12,9 @@ import "./Table.css";
 
 function VerificarOrdenacao(chaveOrdenacao, currentOrder) {
   if (currentOrder === "up") {
-    return (a, b) => a[chaveOrdenacao].localeCompare(b[chaveOrdenacao]);
+    return (a, b) => a[chaveOrdenacao].toString().localeCompare(b[chaveOrdenacao]);
   } else if (currentOrder === "down") {
-    return (a, b) => b[chaveOrdenacao].localeCompare(a[chaveOrdenacao]);
+    return (a, b) => b[chaveOrdenacao].toString().localeCompare(a[chaveOrdenacao]);
   } else {
     return (a) => a;
   }
@@ -116,7 +116,7 @@ class TabelaPaginacao extends React.Component {
 
     if (this.state.colunaParaPesquisar === "selecionar") return;
 
-    if (this.state.colunaParaPesquisar === "matriz") {
+    if (this.state.colunaParaPesquisar === "matriz" || this.state.colunaParaPesquisar === "transportadora") {
       listagem = this.props.fonteDeDados.filter((x) => {
         if (textoPesquisaMinimizado === "sim") {
           console.log("entrou");
@@ -320,7 +320,7 @@ class TabelaPaginacao extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {itensPaginacao.length > 0 ? (
+            {itensPaginacao.length > 0 && (
               itensPaginacao.map((linha, index) => (
                 <tr key={`${linha.CHAVE_NF}-${index}`}>
                   {existeAcoes && (
@@ -339,35 +339,24 @@ class TabelaPaginacao extends React.Component {
                   )}
                   {Object.keys(linha).map((coluna) => {
                     if (colunas.find((col) => col.prop === coluna)) {
-                      if (coluna === "DT_EMISSAO") {
-                        return (
-                          <td key={coluna}>
-                            {new Date(linha[coluna]).toLocaleDateString(
-                              "pt-BR"
-                            )}
-                          </td>
-                        );
-                      }
-                      if (coluna === "matriz") {
-                        return (
-                          <td key={coluna}>
-                            {linha[coluna] === true ? "Sim" : "Não"}
-                          </td>
-                        );
-                      }
-                      return <td key={coluna}>{linha[coluna]}</td>;
+                      switch(coluna){
+                        case 'DT_EMISSAO':
+                          return <td key={coluna}>{new Date(linha[coluna]).toLocaleDateString("pt-BR")}</td>
+                        case 'matriz':
+                          return <td key={coluna}>{linha[coluna] === true ? "Sim" : "Não"}</td>
+                        case 'status':
+                          return <td key={coluna}>{linha[coluna][0].descricao}</td>;
+                          case 'transportadora':
+                            return <td key={coluna}>{linha[coluna] === true ? "Sim" : "Não"}</td>
+                        default:
+                          return <td key={coluna}>{linha[coluna]}</td>;
+                      }                                            
                     } else {
                       return null;
                     }
                   })}
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td>
-                  <p>Carregando...</p>
-                </td>
-              </tr>
+              ))            
             )}
           </tbody>
         </Table>

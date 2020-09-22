@@ -23,4 +23,5 @@ export const TableWrapper = styled.div`
   justify-content: center;
   max-height: 470px;
   overflow-y: auto;
+  margin-top: 16px;
 `;

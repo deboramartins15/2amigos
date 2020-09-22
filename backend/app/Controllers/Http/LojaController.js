@@ -13,7 +13,7 @@ class LojaController {
 
   async store({ request, response }) {
     try {
-      const data = request.only(["login", "senha", "CNPJ", "matriz"]);
+      const data = request.only(["login", "senha", "CNPJ", "matriz","transportadora"]);
 
       const lojaExists = await Loja.findBy("login", data.login);
 
@@ -42,7 +42,7 @@ class LojaController {
   async update({ params, request }) {
     const loja = await Loja.findOrFail(params.id);
 
-    const data = request.only(["matriz"]);
+    const data = request.only(["matriz","transportadora"]);
 
     loja.merge(data);
 

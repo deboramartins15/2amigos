@@ -24,6 +24,7 @@ const initialState = {
   senha: "",
   CNPJ: "",
   matriz: false,
+  transportadora: false,
 };
 
 const columnsLoja = [
@@ -38,6 +39,10 @@ const columnsLoja = [
   {
     prop: "matriz",
     name: "Matriz",
+  },
+  {
+    prop: "transportadora",
+    name: "Transportadora",
   },
 ];
 
@@ -71,7 +76,7 @@ function Config() {
     e.preventDefault();
 
     try {
-      const { login, senha, CNPJ, matriz } = loja;
+      const { login, senha, CNPJ, matriz,transportadora } = loja;
 
       if (!login || !senha || !CNPJ) {        
         setMsgError("danger","Campos Login e/ou Senha e/ou CNPJ em branco !")
@@ -79,9 +84,9 @@ function Config() {
       }
 
       if (loja.id) {
-        await api.put(`/loja/${loja.id}`, { matriz });
+        await api.put(`/loja/${loja.id}`, { matriz, transportadora });
       } else {
-        await api.post(`/loja`, { login, senha, CNPJ, matriz });
+        await api.post(`/loja`, { login, senha, CNPJ, matriz, transportadora });
       }
 
       
@@ -175,8 +180,8 @@ function Config() {
                 </FormGroup>
               </Col>
             </Row>
-            <Row xs="2">
-              <Col>
+            <Row>
+              <Col xs="auto">
                 <FormGroup check>
                   <Label check>
                     <Input
@@ -187,6 +192,20 @@ function Config() {
                       }
                     />{" "}
                     Matriz
+                  </Label>
+                </FormGroup>
+              </Col>
+              <Col xs="auto">
+                <FormGroup check>
+                  <Label check>
+                    <Input
+                      type="checkbox"
+                      checked={loja.transportadora}
+                      onChange={(e) =>
+                        setLoja({ ...loja, transportadora: !loja.transportadora })
+                      }
+                    />{" "}
+                    Transportadora
                   </Label>
                 </FormGroup>
               </Col>

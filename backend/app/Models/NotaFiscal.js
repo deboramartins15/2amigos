@@ -9,7 +9,7 @@ class NotaFiscal extends Model {
   }
 
   status() {
-    return this.hasMany("App/Models/Status");
+    return this.hasMany("App/Models/Status",'STATUS_ID','id');
   }
 }
 

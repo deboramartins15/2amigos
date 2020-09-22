@@ -9,7 +9,7 @@ class Status extends Model {
     }
 
     nota_fiscal(){
-        return this.belongsTo("App/Models/NotaFiscal")
+        return this.belongsTo("App/Models/NotaFiscal",'STATUS_ID','id')
     }
 }
 

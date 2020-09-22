@@ -5,10 +5,10 @@ import filesize from "filesize";
 import PageDefault from "../Default";
 import Upload from "../../components/Upload";
 import ModalUpload from "../../components/ModalUpload";
-import TabelaPaginacao from '../../components/TablePagination/TabelaPaginacao'
+import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
 
 import api from "../../services/api";
-import { getUserId, isMatriz } from "../../services/auth";
+import { getUserId, isMatriz, isTransportadora } from "../../services/auth";
 
 import { Container, UploadWrapper, TableWrapper } from "./styles";
 
@@ -16,6 +16,7 @@ class Dashboard extends Component {
   state = {
     uploadedFiles: [],
     nfs: [],
+    showUpload: false,
   };
 
   handleUpload = (files) => {
@@ -39,7 +40,7 @@ class Dashboard extends Component {
   };
 
   updateFile = async (id, data) => {
-    const nfs = await this.fetchData()
+    const nfs = await this.fetchData();
 
     this.setState({
       uploadedFiles: this.state.uploadedFiles.map((uploadedFile) => {
@@ -47,7 +48,7 @@ class Dashboard extends Component {
           ? { ...uploadedFile, ...data }
           : uploadedFile;
       }),
-      nfs: nfs.data
+      nfs: nfs.data,
     });
   };
 
@@ -82,24 +83,23 @@ class Dashboard extends Component {
   };
 
   async componentDidMount() {
-    const nfs = await this.fetchData()
-    this.setState({ ...this.state, nfs: nfs.data });
+    const nfs = await this.fetchData();
+    this.setState({ ...this.state, nfs: nfs.data, showUpload: await isTransportadora() });
   }
 
   async fetchData() {
     try {
       let response = {};
 
-      if (isMatriz()) {
+      if (isMatriz() || await isTransportadora()) {
         response = await api.get("nf");
       } else {
         const loja = await api.get(`loja/${getUserId()}`);
         response = await api.get("nf", { headers: { CNPJ: loja.data.CNPJ } });
       }
-
-      return response      
+      return response;
     } catch (error) {
-      console.log(error);
+      console.log(error.response);
     }
   }
 
@@ -108,7 +108,7 @@ class Dashboard extends Component {
       {
         name: "CNPJ Emissor",
         prop: "CNPJ_EMISSOR",
-      },            
+      },
       {
         name: "Razão Favorecido",
         prop: "RAZAOSOCIAL_FAVORECIDO",
@@ -116,34 +116,44 @@ class Dashboard extends Component {
       {
         name: "Emissão",
         prop: "DT_EMISSAO",
-      }, 
+      },
       {
         name: "Chave",
         prop: "CHAVE_NF",
       },
       {
-        name: "Total NF",
+        name: "Total",
         prop: "TOTAL_NF",
-      }
+      },
+      {
+        name: "Status",
+        prop: "status",
+      },
     ];
-    const { uploadedFiles, nfs } = this.state;
+    const { uploadedFiles, nfs, showUpload } = this.state;
     const uploading =
-      !!uploadedFiles.length && (uploadedFiles[uploadedFiles.length - 1].uploaded || uploadedFiles[uploadedFiles.length - 1].error)
+      !!uploadedFiles.length &&
+      (uploadedFiles[uploadedFiles.length - 1].uploaded ||
+        uploadedFiles[uploadedFiles.length - 1].error)
         ? true
         : false;
 
     return (
       <PageDefault>
-        <Container className="dashboard-container">
-          {uploading && <ModalUpload files={uploadedFiles} />}
-          <UploadWrapper className="upload-wrapper">
-            <Upload onUpload={this.handleUpload} />
-          </UploadWrapper>
+        <Container className="dashboard-container">        
+          {showUpload && (
+            <>
+              {uploading && <ModalUpload files={uploadedFiles} />}
+              <UploadWrapper className="upload-wrapper">
+                <Upload onUpload={this.handleUpload} />
+              </UploadWrapper>
+            </>
+          )}
           <TableWrapper>
             <TabelaPaginacao
-              registrosPorPagina={5}
+              registrosPorPagina={4}
               fonteDeDados={nfs}
-              colunas={[ ...columnsNF ]}              
+              colunas={[...columnsNF]}
             />
           </TableWrapper>
         </Container>

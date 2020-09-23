@@ -11,12 +11,14 @@ import api from "../../services/api";
 import { getUserId, isMatriz, isTransportadora } from "../../services/auth";
 
 import { Container, UploadWrapper, TableWrapper } from "./styles";
+import { FormGroup, Input } from "reactstrap";
 
 class Dashboard extends Component {
   state = {
     uploadedFiles: [],
     nfs: [],
     showUpload: false,
+    statusValues: []
   };
 
   handleUpload = (files) => {
@@ -84,14 +86,22 @@ class Dashboard extends Component {
 
   async componentDidMount() {
     const nfs = await this.fetchData();
-    this.setState({ ...this.state, nfs: nfs.data, showUpload: await isTransportadora() });
+
+    const status = await api.get("/status")
+
+    this.setState({
+      ...this.state,
+      nfs: nfs.data,
+      showUpload: await isTransportadora(),
+      statusValues: status.data
+    });
   }
 
   async fetchData() {
     try {
       let response = {};
 
-      if (isMatriz() || await isTransportadora()) {
+      if (isMatriz() || (await isTransportadora())) {
         response = await api.get("nf");
       } else {
         const loja = await api.get(`loja/${getUserId()}`);
@@ -102,6 +112,15 @@ class Dashboard extends Component {
       console.log(error.response);
     }
   }
+
+  handleFilterStatus = (e) => {
+    this.setState({
+      ...this.state,
+      nfs: this.state.nfs.filter(
+        (nf) => nf.STATUS_ID.toString() === e.target.value
+      ),
+    });
+  };
 
   render() {
     const columnsNF = [
@@ -130,7 +149,7 @@ class Dashboard extends Component {
         prop: "status",
       },
     ];
-    const { uploadedFiles, nfs, showUpload } = this.state;
+    const { uploadedFiles, nfs, showUpload, statusValues } = this.state;
     const uploading =
       !!uploadedFiles.length &&
       (uploadedFiles[uploadedFiles.length - 1].uploaded ||
@@ -140,7 +159,7 @@ class Dashboard extends Component {
 
     return (
       <PageDefault>
-        <Container className="dashboard-container">        
+        <Container className="dashboard-container">
           {showUpload && (
             <>
               {uploading && <ModalUpload files={uploadedFiles} />}
@@ -150,6 +169,19 @@ class Dashboard extends Component {
             </>
           )}
           <TableWrapper>
+            <FormGroup>
+              <Input
+                type="select"
+                name="select"
+                id="exampleSelect"
+                onChange={(e) => this.handleFilterStatus(e)}
+              >
+                <option>Status..</option>
+                {statusValues.map(statusValue => {
+                  return <option key={statusValue.id} value={statusValue.id}>{statusValue.descricao}</option>
+                })}
+              </Input>
+            </FormGroup>
             <TabelaPaginacao
               registrosPorPagina={4}
               fonteDeDados={nfs}

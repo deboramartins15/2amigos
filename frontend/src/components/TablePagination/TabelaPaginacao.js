@@ -12,9 +12,19 @@ import "./Table.css";
 
 function VerificarOrdenacao(chaveOrdenacao, currentOrder) {
   if (currentOrder === "up") {
-    return (a, b) => a[chaveOrdenacao].toString().localeCompare(b[chaveOrdenacao]);
+    return chaveOrdenacao === "status"
+      ? (a, b) =>
+          a[chaveOrdenacao][0].descricao.localeCompare(
+            b[chaveOrdenacao][0].descricao
+          )
+      : (a, b) => a[chaveOrdenacao].toString().localeCompare(b[chaveOrdenacao]);
   } else if (currentOrder === "down") {
-    return (a, b) => b[chaveOrdenacao].toString().localeCompare(a[chaveOrdenacao]);
+    return chaveOrdenacao === "status"
+      ? (a, b) =>
+          b[chaveOrdenacao][0].descricao.localeCompare(
+            a[chaveOrdenacao][0].descricao
+          )
+      : (a, b) => b[chaveOrdenacao].toString().localeCompare(a[chaveOrdenacao]);
   } else {
     return (a) => a;
   }
@@ -116,7 +126,10 @@ class TabelaPaginacao extends React.Component {
 
     if (this.state.colunaParaPesquisar === "selecionar") return;
 
-    if (this.state.colunaParaPesquisar === "matriz" || this.state.colunaParaPesquisar === "transportadora") {
+    if (
+      this.state.colunaParaPesquisar === "matriz" ||
+      this.state.colunaParaPesquisar === "transportadora"
+    ) {
       listagem = this.props.fonteDeDados.filter((x) => {
         if (textoPesquisaMinimizado === "sim") {
           console.log("entrou");
@@ -194,7 +207,10 @@ class TabelaPaginacao extends React.Component {
                 paginador.paginaAtual === 1 ? "page-item disabled" : "page-item"
               }
             >
-              <button onClick={() => this.setPage(1)} className="primeiro-btn page-link">
+              <button
+                onClick={() => this.setPage(1)}
+                className="primeiro-btn page-link"
+              >
                 Primeiro
               </button>
             </li>
@@ -289,12 +305,14 @@ class TabelaPaginacao extends React.Component {
                 <option key={0} value="selecionar">
                   Selecionar..
                 </option>
-                {colunas.map(function (data, key) {
-                  return (
-                    <option key={key} value={data.prop}>
-                      {data.name}
-                    </option>
-                  );
+                {colunas.map(function(data, key) {
+                  if (data.prop !== "status") {
+                    return (
+                      <option key={key} value={data.prop}>
+                        {data.name}
+                      </option>
+                    );
+                  } else return null;
                 })}
               </select>
             </Col>
@@ -320,7 +338,7 @@ class TabelaPaginacao extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {itensPaginacao.length > 0 && (
+            {itensPaginacao.length > 0 &&
               itensPaginacao.map((linha, index) => (
                 <tr key={`${linha.CHAVE_NF}-${index}`}>
                   {existeAcoes && (
@@ -339,25 +357,40 @@ class TabelaPaginacao extends React.Component {
                   )}
                   {Object.keys(linha).map((coluna) => {
                     if (colunas.find((col) => col.prop === coluna)) {
-                      switch(coluna){
-                        case 'DT_EMISSAO':
-                          return <td key={coluna}>{new Date(linha[coluna]).toLocaleDateString("pt-BR")}</td>
-                        case 'matriz':
-                          return <td key={coluna}>{linha[coluna] === true ? "Sim" : "Não"}</td>
-                        case 'status':
-                          return <td key={coluna}>{linha[coluna][0].descricao}</td>;
-                          case 'transportadora':
-                            return <td key={coluna}>{linha[coluna] === true ? "Sim" : "Não"}</td>
+                      switch (coluna) {
+                        case "DT_EMISSAO":
+                          return (
+                            <td key={coluna}>
+                              {new Date(linha[coluna]).toLocaleDateString(
+                                "pt-BR"
+                              )}
+                            </td>
+                          );
+                        case "matriz":
+                          return (
+                            <td key={coluna}>
+                              {linha[coluna] === true ? "Sim" : "Não"}
+                            </td>
+                          );
+                        case "status":
+                          return (
+                            <td key={coluna}>{linha[coluna][0].descricao}</td>
+                          );
+                        case "transportadora":
+                          return (
+                            <td key={coluna}>
+                              {linha[coluna] === true ? "Sim" : "Não"}
+                            </td>
+                          );
                         default:
                           return <td key={coluna}>{linha[coluna]}</td>;
-                      }                                            
+                      }
                     } else {
                       return null;
                     }
                   })}
                 </tr>
-              ))            
-            )}
+              ))}
           </tbody>
         </Table>
 

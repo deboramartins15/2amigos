@@ -30,6 +30,6 @@ export const TableWrapper = styled.div`
 
   .form-group{
     width: 418px;
-    margin-left: 2.5%;
+    margin-left: ${(props) => props.marginInput}
   }
 `;

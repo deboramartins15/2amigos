@@ -17,8 +17,9 @@ class Dashboard extends Component {
   state = {
     uploadedFiles: [],
     nfs: [],
+    nfsFiltered: [],
     showUpload: false,
-    statusValues: []
+    statusValues: [],
   };
 
   handleUpload = (files) => {
@@ -87,13 +88,14 @@ class Dashboard extends Component {
   async componentDidMount() {
     const nfs = await this.fetchData();
 
-    const status = await api.get("/status")
+    const status = await api.get("/status");
 
     this.setState({
       ...this.state,
       nfs: nfs.data,
       showUpload: await isTransportadora(),
-      statusValues: status.data
+      statusValues: status.data,
+      nfsFiltered: nfs.data,
     });
   }
 
@@ -116,9 +118,12 @@ class Dashboard extends Component {
   handleFilterStatus = (e) => {
     this.setState({
       ...this.state,
-      nfs: this.state.nfs.filter(
-        (nf) => nf.STATUS_ID.toString() === e.target.value
-      ),
+      nfsFiltered:
+        e.target.value >= 0
+          ? this.state.nfs.filter(
+              (nf) => nf.STATUS_ID.toString() === e.target.value
+            )
+          : this.state.nfs,
     });
   };
 
@@ -149,7 +154,12 @@ class Dashboard extends Component {
         prop: "status",
       },
     ];
-    const { uploadedFiles, nfs, showUpload, statusValues } = this.state;
+    const {
+      uploadedFiles,
+      showUpload,
+      statusValues,
+      nfsFiltered,
+    } = this.state;
     const uploading =
       !!uploadedFiles.length &&
       (uploadedFiles[uploadedFiles.length - 1].uploaded ||
@@ -168,7 +178,7 @@ class Dashboard extends Component {
               </UploadWrapper>
             </>
           )}
-          <TableWrapper>
+          <TableWrapper marginInput={showUpload ? '2%' : '2.5%'}>
             <FormGroup>
               <Input
                 type="select"
@@ -176,15 +186,19 @@ class Dashboard extends Component {
                 id="exampleSelect"
                 onChange={(e) => this.handleFilterStatus(e)}
               >
-                <option>Status..</option>
-                {statusValues.map(statusValue => {
-                  return <option key={statusValue.id} value={statusValue.id}>{statusValue.descricao}</option>
+                <option value="-1">Status..</option>
+                {statusValues.map((statusValue) => {
+                  return (
+                    <option key={statusValue.id} value={statusValue.id}>
+                      {statusValue.descricao}
+                    </option>
+                  );
                 })}
               </Input>
             </FormGroup>
             <TabelaPaginacao
               registrosPorPagina={4}
-              fonteDeDados={nfs}
+              fonteDeDados={nfsFiltered}
               colunas={[...columnsNF]}
             />
           </TableWrapper>

@@ -199,7 +199,7 @@ class TabelaPaginacao extends React.Component {
     }
 
     return (
-      <div className="float-right">
+      <div className="container-pagination">
         <nav>
           <ul className="pagination">
             <li

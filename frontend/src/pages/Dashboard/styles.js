@@ -32,4 +32,8 @@ export const TableWrapper = styled.div`
     width: 418px;
     margin-left: ${(props) => props.marginInput}
   }
+
+  @media (max-width: 360px) {
+    margin-top: 100px;
+  }
 `;

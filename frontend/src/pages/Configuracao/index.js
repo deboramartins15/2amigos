@@ -142,6 +142,7 @@ function Config() {
                     id="login"
                     placeholder="Login.."
                     value={loja.login}
+                    disabled={disabled}
                     onChange={(e) =>
                       setLoja({ ...loja, login: e.target.value })
                     }
@@ -175,6 +176,7 @@ function Config() {
                     id="CNPJ"
                     placeholder="CNPJ.."
                     value={loja.CNPJ}
+                    disabled={disabled}
                     onChange={(e) => setLoja({ ...loja, CNPJ: e.target.value })}
                   />
                 </FormGroup>

@@ -1,16 +1,16 @@
-'use strict'
+"use strict";
 
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
-const Model = use('Model')
+const Model = use("Model");
 
 class Status extends Model {
-    static get table(){
-        return 'status'
-    }
+  static get table() {
+    return "status";
+  }
 
-    nota_fiscal(){
-        return this.belongsTo("App/Models/NotaFiscal",'STATUS_ID','id')
-    }
+  nota_fiscal() {
+    return this.belongsTo("App/Models/NotaFiscal", "STATUS_ID", "id");
+  }
 }
 
-module.exports = Status
+module.exports = Status;

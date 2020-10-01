@@ -9,7 +9,7 @@ class NotaFiscalController {
   async index({ request, response }) {
     try {
       const CNPJ = request.header("CNPJ");
-  
+
       if (CNPJ) {
         return NotaFiscal.query()
           .where("CNPJ_FAVORECIDO", "=", CNPJ)

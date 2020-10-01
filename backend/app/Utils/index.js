@@ -3,7 +3,7 @@ const Drive = use("Drive");
 const crypto = require("crypto");
 
 /**
- * 
+ *
  * LOCAL FUNCTION
  */
 
@@ -20,15 +20,15 @@ function parseXmlToJson(xml) {
 }
 
 /**
- * 
+ *
  * EXPORTED FUNCTION
  */
 
-async function getJsonFromXML(xml){
+async function getJsonFromXML(xml) {
   await xml.move(Helpers.tmpPath("uploads"), {
     name: crypto.randomBytes(16).toString("hex") + "-" + xml.clientName,
-    overwrite: true,
-  });  
+    overwrite: true
+  });
 
   if (!xml.moved()) {
     return xml.error();
@@ -49,7 +49,7 @@ async function getJsonFromXML(xml){
     return json;
   }
 
-  return {}
+  return {};
 }
 
 module.exports = { getJsonFromXML };

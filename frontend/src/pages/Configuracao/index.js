@@ -76,10 +76,10 @@ function Config() {
     e.preventDefault();
 
     try {
-      const { login, senha, CNPJ, matriz,transportadora } = loja;
+      const { login, senha, CNPJ, matriz, transportadora } = loja;
 
-      if (!login || !senha || !CNPJ) {        
-        setMsgError("danger","Campos Login e/ou Senha e/ou CNPJ em branco !")
+      if (!login || !senha || !CNPJ) {
+        setMsgError("danger", "Campos Login e/ou Senha e/ou CNPJ em branco !");
         return;
       }
 
@@ -89,13 +89,15 @@ function Config() {
         await api.post(`/loja`, { login, senha, CNPJ, matriz, transportadora });
       }
 
-      
-      setMsgError("success","Loja alterada com sucesso !")
+      setMsgError("success", "Loja alterada com sucesso !");
       handleReset();
-    } catch (error) {      
-      setMsgError("danger",error.response.data.error
-      ? error.response.data.error
-      : error.response.data.detail)
+    } catch (error) {
+      setMsgError(
+        "danger",
+        error.response.data.error
+          ? error.response.data.error
+          : error.response.data.detail
+      );
     }
   };
 
@@ -204,7 +206,10 @@ function Config() {
                       type="checkbox"
                       checked={loja.transportadora}
                       onChange={(e) =>
-                        setLoja({ ...loja, transportadora: !loja.transportadora })
+                        setLoja({
+                          ...loja,
+                          transportadora: !loja.transportadora,
+                        })
                       }
                     />{" "}
                     Transportadora

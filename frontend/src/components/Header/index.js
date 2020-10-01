@@ -8,7 +8,7 @@ function Header() {
 
   function toggleMenu(e) {
     e.preventDefault();
-    
+
     setShowMenu(!showMenu);
   }
 

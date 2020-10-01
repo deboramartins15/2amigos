@@ -17,7 +17,7 @@ export const Wrapper = styled.div`
   height: 320px;
   background: var(--primary-color);
   border-radius: 8px;
-  box-shadow: 0 0.2rem 1.2rem rgba(0,0,0,0.2);
+  box-shadow: 0 0.2rem 1.2rem rgba(0, 0, 0, 0.2);
 `;
 
 export const Header = styled.div`

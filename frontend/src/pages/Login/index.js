@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 
-import {
-  Container,
-  Wrapper,
-  Header,
-  FormLogin,
-  Input,
-  Button,
-} from "./styles";
+import { Container, Wrapper, Header, FormLogin, Input, Button } from "./styles";
 
 import api from "../../services/api";
 import { login as SignIn } from "../../services/auth";
@@ -34,7 +27,7 @@ function Login(props) {
         SignIn(response.data.token, response.data.lojaId, response.data.matriz);
         props.history.push("/dashboard");
       } catch (err) {
-        console.log(err)
+        console.log(err);
         setError("Houve um problema com o login, verifique suas credenciais.");
       }
     }

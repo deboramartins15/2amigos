@@ -29,9 +29,9 @@ function Leitura() {
     e.preventDefault();
 
     try {
-      if(!codBarra){
-        setMsgError("danger","Informe o código de barra da NF !")
-        return
+      if (!codBarra) {
+        setMsgError("danger", "Informe o código de barra da NF !");
+        return;
       }
 
       let nf;
@@ -46,28 +46,31 @@ function Leitura() {
       }
 
       if (nf.status === 204) {
-        setMsgError("warning","Nota fiscal não importada !");
+        setMsgError("warning", "Nota fiscal não importada !");
       } else {
         const response = await api.put(`nf/${nf.data.id}`, {
           status: "Recebida",
           acao: "recebimento",
           login: getUserId(),
         });
-        
+
         if (response.status === 200) {
-          setMsgError("success","Nota fiscal recebida com sucesso !");
-          handleReset()
+          setMsgError("success", "Nota fiscal recebida com sucesso !");
+          handleReset();
         }
       }
-    } catch (error) {      
-      setMsgError("danger",error.response.data.error
-      ? error.response.data.error
-      : error.response.data.detail)
+    } catch (error) {
+      setMsgError(
+        "danger",
+        error.response.data.error
+          ? error.response.data.error
+          : error.response.data.detail
+      );
     }
   };
 
   const handleReset = async () => {
-    setCodBarra("");    
+    setCodBarra("");
   };
 
   const setMsgError = (color, msg) => {

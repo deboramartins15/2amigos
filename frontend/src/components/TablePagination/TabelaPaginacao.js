@@ -305,7 +305,7 @@ class TabelaPaginacao extends React.Component {
                 <option key={0} value="selecionar">
                   Selecionar..
                 </option>
-                {colunas.map(function(data, key) {
+                {colunas.map(function (data, key) {
                   if (data.prop !== "status") {
                     return (
                       <option key={key} value={data.prop}>

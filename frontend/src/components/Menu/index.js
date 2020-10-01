@@ -10,10 +10,8 @@ function Menu(props) {
   return (
     <Container>
       <MenuList>
-      <MenuItem>
-          <Link to="/dashboard">
-            Início
-          </Link>
+        <MenuItem>
+          <Link to="/dashboard">Início</Link>
         </MenuItem>
         {isMatriz() && (
           <MenuItem>
@@ -21,9 +19,7 @@ function Menu(props) {
           </MenuItem>
         )}
         <MenuItem>
-          <Link to="/leitura" >
-            Leitura NF
-          </Link>
+          <Link to="/leitura">Leitura NF</Link>
         </MenuItem>
         <MenuItem>
           <Link to="/" onClick={handleSignOut}>

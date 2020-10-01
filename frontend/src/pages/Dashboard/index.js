@@ -154,12 +154,7 @@ class Dashboard extends Component {
         prop: "status",
       },
     ];
-    const {
-      uploadedFiles,
-      showUpload,
-      statusValues,
-      nfsFiltered,
-    } = this.state;
+    const { uploadedFiles, showUpload, statusValues, nfsFiltered } = this.state;
     const uploading =
       !!uploadedFiles.length &&
       (uploadedFiles[uploadedFiles.length - 1].uploaded ||
@@ -178,7 +173,7 @@ class Dashboard extends Component {
               </UploadWrapper>
             </>
           )}
-          <TableWrapper marginInput={showUpload ? '2%' : '2.5%'}>
+          <TableWrapper marginInput={showUpload ? "2%" : "2.5%"}>
             <FormGroup>
               <Input
                 type="select"

@@ -26,12 +26,12 @@ export const TableWrapper = styled.div`
   align-items: flex-start;
   margin: 16px auto;
 
-  .form-group{
+  .form-group {
     width: 205px;
   }
 
-  .container{
+  .container {
     margin: 0;
-    padding:0;
+    padding: 0;
   }
 `;

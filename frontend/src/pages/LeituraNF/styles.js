@@ -8,7 +8,7 @@ export const Wrapper = styled.div`
   align-items: center;
   position: absolute;
   top: 80px;
-  
+
   > span {
     height: 20px;
     color: red;

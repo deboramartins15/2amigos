@@ -25,8 +25,7 @@ export const BurguerButton = styled(Menu)`
   width: 32px;
   height: 32px;
   cursor: pointer;
-  &:hover{
-      opacity: 0.8;
+  &:hover {
+    opacity: 0.8;
   }
 `;
-

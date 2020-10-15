@@ -52,6 +52,7 @@ class Dashboard extends Component {
           : uploadedFile;
       }),
       nfs: nfs.data,
+      nfsFiltered: nfs.data,
     });
   };
 

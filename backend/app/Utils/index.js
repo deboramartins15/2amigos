@@ -1,6 +1,7 @@
 const Helpers = use("Helpers");
 const Drive = use("Drive");
 const crypto = require("crypto");
+const parser = require("xml2json");
 
 /**
  *
@@ -8,15 +9,23 @@ const crypto = require("crypto");
  */
 
 function parseXmlToJson(xml) {
-  const json = {};
-  for (const res of xml.matchAll(
-    /(?:<(\w*)(?:\s[^>]*)*>)((?:(?!<\1).)*)(?:<\/\1>)|<(\w*)(?:\s*)*\/>/gm
-  )) {
-    const key = res[1] || res[3];
-    const value = res[2] && parseXmlToJson(res[2]);
-    json[key] = (value && Object.keys(value).length ? value : res[2]) || null;
+  try {
+    // const json = {};
+    // const matches = [...xml.matchAll(
+    //   /(?:<(\w*)(?:\s[^>]*)*>)((?:(?!<\1).)*)(?:<\/\1>)|<(\w*)(?:\s*)*\/>/gm
+    // )]
+
+    // for (const res of matches) {
+    //   const key = res[1] || res[3];
+    //   const value = res[2] && parseXmlToJson(res[2]);
+    //   json[key] = (value && Object.keys(value).length ? value : res[2]) || null;
+    // }
+
+    const json = parser.toJson(xml, { object: true });
+    return json;
+  } catch (error) {
+    console.log(matches);
   }
-  return json;
 }
 
 /**

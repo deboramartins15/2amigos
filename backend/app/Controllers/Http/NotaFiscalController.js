@@ -57,10 +57,10 @@ class NotaFiscalController {
         SERIE_NF: NF.nfeProc.NFe.infNFe.ide.serie,
         TOTAL_NF: NF.nfeProc.NFe.infNFe.total.ICMSTot.vNF,
         TOTAL_PRODUTOS: NF.nfeProc.NFe.infNFe.total.ICMSTot.vProd,
-        total_frete: NF.nfeProc.NFe.infNFe.total.ICMSTot.vFrete,
-        VOLUME: NF.nfeProc.NFe.infNFe.vol.qVol,
-        PESO_LIQ: NF.nfeProc.NFe.infNFe.vol.pesoL,
-        PESO_BRUTO: NF.nfeProc.NFe.infNFe.vol.pesoB,
+        TOTAL_FRETE: NF.nfeProc.NFe.infNFe.total.ICMSTot.vFrete,
+        VOLUME: NF.nfeProc.NFe.infNFe.transp.vol.qVol,
+        PESO_LIQ: NF.nfeProc.NFe.infNFe.transp.vol.pesoL,
+        PESO_BRUTO: NF.nfeProc.NFe.infNFe.transp.vol.pesoB,
         DT_INTEGRACAO: new Date().toLocaleString("pt-br"),
         USER_INTEGRACAO: userIntegracao.login,
         STATUS_ID: statusIntegracao.id
@@ -68,7 +68,7 @@ class NotaFiscalController {
 
       return await NotaFiscal.create(data);
     } catch (error) {
-      return response.send(error);
+      return response.status(500).send(error.message);
     }
   }
 

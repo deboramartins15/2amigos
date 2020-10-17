@@ -305,7 +305,7 @@ class TabelaPaginacao extends React.Component {
                 <option key={0} value="selecionar">
                   Selecionar..
                 </option>
-                {colunas.map(function (data, key) {
+                {colunas.map(function(data, key) {
                   if (data.prop !== "status") {
                     return (
                       <option key={key} value={data.prop}>
@@ -392,6 +392,12 @@ class TabelaPaginacao extends React.Component {
                 </tr>
               ))}
           </tbody>
+          <tfoot className="table-footer-pagination">
+            <tr>
+              <td>Total NF:</td>
+              <td>{fonteDeDados.length}</td>
+            </tr>
+          </tfoot>
         </Table>
 
         {fonteDeDados.length > 0 && <this.renderizarPaginacao />}

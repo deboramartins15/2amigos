@@ -66,6 +66,10 @@ class NotaFiscalController {
         STATUS_ID: statusIntegracao.id
       };
 
+      const exists = await NotaFiscal.findBy("CHAVE_NF",data.CHAVE_NF)
+
+      if(exists) return response.status(400).send({ error: "Nota fiscal já integrada!"})
+
       return await NotaFiscal.create(data);
     } catch (error) {
       return response.status(500).send(error.message);

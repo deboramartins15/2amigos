@@ -35,12 +35,13 @@ class TabelaPaginacao extends React.Component {
     super();
     this.state = {
       itensPaginacao: [],
-      itensPesquisa: [],
+      itensPesquisa: null,
       itensOrdenados: [],
       paginador: {},
       ordenacaoAtual: "default",
       textoParaPesquisar: "",
       colunaParaPesquisar: "selecionar",
+      statusParaPesquisar: "status",
       iconOrdenacao: faSort,
     };
 
@@ -62,7 +63,7 @@ class TabelaPaginacao extends React.Component {
     if (dadosParaPaginar) {
       listaDeRegistros = dadosParaPaginar;
     } else {
-      if (itensPesquisa.length > 0) {
+      if (itensPesquisa && itensPesquisa.length > 0) {
         listaDeRegistros = itensPesquisa;
       } else if (itensOrdenados.length > 0) {
         listaDeRegistros = itensOrdenados;
@@ -119,6 +120,32 @@ class TabelaPaginacao extends React.Component {
     };
   }
 
+  handleFilterStatus(status) {
+    this.setState({ statusParaPesquisar: status });
+    let listagem = [];
+
+    if (status === "status") {
+      listagem = this.props.fonteDeDados.filter((nf) => {
+        return nf[this.state.colunaParaPesquisar]
+          .toString()
+          .toLowerCase()
+          .includes(this.state.textoParaPesquisar);
+      });
+    } else {
+      listagem = this.props.fonteDeDados.filter(
+        (nf) =>
+          nf.STATUS_ID.toString() === status &&
+          nf[this.state.colunaParaPesquisar]
+            .toString()
+            .toLowerCase()
+            .includes(this.state.textoParaPesquisar)
+      );
+    }
+
+    this.setState({ itensPesquisa: listagem });
+    this.setPage(this.props.paginaInicial, listagem);
+  }
+
   onPesquisar(texto) {
     const textoPesquisaMinimizado = texto.toLowerCase();
     this.setState({ textoParaPesquisar: texto });
@@ -139,12 +166,27 @@ class TabelaPaginacao extends React.Component {
         } else return x;
       });
     } else {
-      listagem = this.props.fonteDeDados.filter((x) =>
-        x[this.state.colunaParaPesquisar]
-          .toString()
-          .toLowerCase()
-          .includes(textoPesquisaMinimizado)
-      );
+      const statusValue =
+        this.state.statusParaPesquisar === "status"
+          ? null
+          : this.state.statusParaPesquisar;
+
+      listagem = this.props.fonteDeDados.filter((x) => {
+        if (statusValue) {
+          return (
+            x[this.state.colunaParaPesquisar]
+              .toString()
+              .toLowerCase()
+              .includes(textoPesquisaMinimizado) &&
+            x["STATUS_ID"].toString() === statusValue
+          );
+        } else {
+          return x[this.state.colunaParaPesquisar]
+            .toString()
+            .toLowerCase()
+            .includes(textoPesquisaMinimizado);
+        }
+      });
     }
 
     this.setState({ itensPesquisa: listagem });
@@ -278,8 +320,16 @@ class TabelaPaginacao extends React.Component {
   };
 
   render() {
-    const { itensPaginacao, iconOrdenacao } = this.state;
-    const { fonteDeDados, colunas, acoes, espacoBotoesAcoes } = this.props;
+    const { itensPaginacao, iconOrdenacao, itensPesquisa } = this.state;
+    const {
+      fonteDeDados,
+      colunas,
+      acoes,
+      espacoBotoesAcoes,
+      footerTitulo,
+      filterStatus,
+      StatusValues,
+    } = this.props;
     var existeAcoes = acoes && acoes.length > 0;
 
     return (
@@ -303,7 +353,7 @@ class TabelaPaginacao extends React.Component {
                 }
               >
                 <option key={0} value="selecionar">
-                  Selecionar..
+                  Filtros..
                 </option>
                 {colunas.map(function(data, key) {
                   if (data.prop !== "status") {
@@ -316,6 +366,26 @@ class TabelaPaginacao extends React.Component {
                 })}
               </select>
             </Col>
+            {filterStatus && (
+              <Col>
+                <select
+                  style={{ marginLeft: 10 }}
+                  className={`custom-select form-control`}
+                  onChange={(e) => this.handleFilterStatus(e.target.value)}
+                >
+                  <option key={0} value="status">
+                    Status..
+                  </option>
+                  {StatusValues.map(function(status) {
+                    return (
+                      <option key={status.id} value={status.id}>
+                        {status.descricao}
+                      </option>
+                    );
+                  })}
+                </select>
+              </Col>
+            )}
           </Row>
         </Form>
 
@@ -394,8 +464,10 @@ class TabelaPaginacao extends React.Component {
           </tbody>
           <tfoot className="table-footer-pagination">
             <tr>
-              <td>Total NF:</td>
-              <td>{fonteDeDados.length}</td>
+              <td>{footerTitulo}</td>
+              <td>
+                {itensPesquisa ? itensPesquisa.length : fonteDeDados.length}
+              </td>
             </tr>
           </tfoot>
         </Table>

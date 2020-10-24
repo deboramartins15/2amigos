@@ -242,6 +242,7 @@ function Config() {
               acoes={[
                 { nome: "Editar", click: fetchLoja, class: "btn btn-info" },
               ]}
+              footerTitulo={'Total usuários:'}
             />
           </TableWrapper>
         </Container>

@@ -11,13 +11,11 @@ import api from "../../services/api";
 import { getUserId, isMatriz, isTransportadora } from "../../services/auth";
 
 import { Container, UploadWrapper, TableWrapper } from "./styles";
-import { FormGroup, Input } from "reactstrap";
 
 class Dashboard extends Component {
   state = {
     uploadedFiles: [],
     nfs: [],
-    nfsFiltered: [],
     showUpload: false,
     statusValues: [],
   };
@@ -52,7 +50,6 @@ class Dashboard extends Component {
           : uploadedFile;
       }),
       nfs: nfs.data,
-      nfsFiltered: nfs.data,
     });
   };
 
@@ -96,7 +93,6 @@ class Dashboard extends Component {
       nfs: nfs.data,
       showUpload: await isTransportadora(),
       statusValues: status.data,
-      nfsFiltered: nfs.data,
     });
   }
 
@@ -116,26 +112,15 @@ class Dashboard extends Component {
     }
   }
 
-  handleFilterStatus = (e) => {
-    this.setState({
-      ...this.state,
-      nfsFiltered:
-        e.target.value >= 0
-          ? this.state.nfs.filter(
-              (nf) => nf.STATUS_ID.toString() === e.target.value
-            )
-          : this.state.nfs,
-    });
-  };
 
   render() {
     const columnsNF = [
       {
-        name: "CNPJ Emissor",
-        prop: "CNPJ_EMISSOR",
+        name: "CNPJ",
+        prop: "CNPJ_FAVORECIDO",
       },
       {
-        name: "Razão Favorecido",
+        name: "Razão Social",
         prop: "RAZAOSOCIAL_FAVORECIDO",
       },
       {
@@ -147,15 +132,32 @@ class Dashboard extends Component {
         prop: "CHAVE_NF",
       },
       {
+        name: "Numero",
+        prop: "NUMERO_NF",
+      },
+      {
         name: "Total",
         prop: "TOTAL_NF",
+      },
+      {
+        name: "Volume",
+        prop: "VOLUME",
+      },
+      {
+        name: "Peso",
+        prop: "PESO_LIQ",
       },
       {
         name: "Status",
         prop: "status",
       },
     ];
-    const { uploadedFiles, showUpload, statusValues, nfsFiltered } = this.state;
+    const {
+      uploadedFiles,
+      showUpload,
+      statusValues,
+      nfs
+    } = this.state;
     const uploading =
       !!uploadedFiles.length &&
       (uploadedFiles[uploadedFiles.length - 1].uploaded ||
@@ -175,27 +177,13 @@ class Dashboard extends Component {
             </>
           )}
           <TableWrapper marginInput={showUpload ? "2%" : "2.5%"}>
-            <FormGroup>
-              <Input
-                type="select"
-                name="select"
-                id="exampleSelect"
-                onChange={(e) => this.handleFilterStatus(e)}
-              >
-                <option value="-1">Status..</option>
-                {statusValues.map((statusValue) => {
-                  return (
-                    <option key={statusValue.id} value={statusValue.id}>
-                      {statusValue.descricao}
-                    </option>
-                  );
-                })}
-              </Input>
-            </FormGroup>
             <TabelaPaginacao
               registrosPorPagina={4}
-              fonteDeDados={nfsFiltered}
+              fonteDeDados={nfs}
               colunas={[...columnsNF]}
+              footerTitulo={"Total NF:"}
+              filterStatus={true}
+              StatusValues={statusValues}
             />
           </TableWrapper>
         </Container>

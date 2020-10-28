@@ -136,7 +136,7 @@ class Dashboard extends Component {
         prop: "NUMERO_NF",
       },
       {
-        name: "Total",
+        name: "Total NF",
         prop: "TOTAL_NF",
       },
       {
@@ -145,7 +145,7 @@ class Dashboard extends Component {
       },
       {
         name: "Peso",
-        prop: "PESO_LIQ",
+        prop: "PESO_BRUTO",
       },
       {
         name: "Status",

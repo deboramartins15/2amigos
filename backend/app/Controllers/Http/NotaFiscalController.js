@@ -66,9 +66,12 @@ class NotaFiscalController {
         STATUS_ID: statusIntegracao.id
       };
 
-      const exists = await NotaFiscal.findBy("CHAVE_NF",data.CHAVE_NF)
+      const exists = await NotaFiscal.findBy("CHAVE_NF", data.CHAVE_NF);
 
-      if(exists) return response.status(400).send({ error: "Nota fiscal já integrada!"})
+      if (exists)
+        return response
+          .status(400)
+          .send({ error: "Nota fiscal já integrada!" });
 
       return await NotaFiscal.create(data);
     } catch (error) {
@@ -154,6 +157,12 @@ class NotaFiscalController {
             error: "Nota fiscal não é visivel para a loja solicitante"
           });
         }
+      }
+      
+      if (NF.DT_RECEBIDO) {
+        return response.status(400).send({
+          error: "Nota fiscal já recebida"
+        });
       }
 
       return NF;

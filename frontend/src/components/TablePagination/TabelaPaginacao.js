@@ -283,7 +283,7 @@ class TabelaPaginacao extends React.Component {
     var existeAcoes = acoes && acoes.length > 0;
 
     return (
-      <Container>
+      <div className="table-container">
         <Form inline>
           <Row className="mb-2">
             <Col>
@@ -401,7 +401,7 @@ class TabelaPaginacao extends React.Component {
         </Table>
 
         {fonteDeDados.length > 0 && <this.renderizarPaginacao />}
-      </Container>
+      </div>
     );
   }
 }

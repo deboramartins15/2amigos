@@ -24,7 +24,7 @@ const initialState = {
   senha: "",
   CNPJ: "",
   matriz: false,
-  transportadora: false,
+  transportadora: false
 };
 
 const columnsLoja = [
@@ -52,6 +52,7 @@ function Config() {
   const [msg, setMsg] = useState({ color: "", message: "" });
   const [visible, setVisible] = useState(true);
   const [disabled, setDisabled] = useState(false);
+  const [perfilUser,setPerfilUser] = useState(0)
 
   const onDismiss = () => {
     setVisible(false);
@@ -104,6 +105,7 @@ function Config() {
   const handleReset = async () => {
     setLoja(initialState);
     setDisabled(false);
+    setPerfilUser(0)
     fetchData();
   };
 
@@ -114,6 +116,15 @@ function Config() {
       const response = await api.get(`/loja/${id}`);
       setLoja(response.data);
       setDisabled(true);
+
+      if(response.data.matriz){
+        setPerfilUser(1)
+      }else if(response.data.transportadora){
+        setPerfilUser(3)
+      }else{
+        setPerfilUser(2)
+      }
+      
     } catch (error) {
       setMsg(error.data.error);
     }
@@ -123,6 +134,22 @@ function Config() {
     setMsg({ color: color, message: msg });
     setVisible(true);
   };
+
+  const handlePerfilUsuario = e => {
+    setPerfilUser(e.target.value)
+
+    switch(e.target.value.toString()){
+      case '1':
+        setLoja({ ...loja, matriz: true , transportadora: false });
+        break;
+      case '2':
+        setLoja({ ...loja, matriz: false , transportadora: false });
+        break;
+      case '3':
+        setLoja({ ...loja, matriz: false , transportadora: true });
+        break;
+    }    
+  }
 
   return (
     <PageDefault title="Configuração">
@@ -180,11 +207,29 @@ function Config() {
                     value={loja.CNPJ}
                     disabled={disabled}
                     onChange={(e) => setLoja({ ...loja, CNPJ: e.target.value })}
-                  />
+                  />                           
+              </FormGroup>
+              </Col>
+              <Col>
+              <FormGroup>
+                  <Label for="perfil">Perfil</Label>
+                  <Input
+                    type="select"
+                    name="perfil"
+                    id="perfil"
+                    placeholder="Perfil usuário.."
+                    value={perfilUser}
+                    onChange={(e) => handlePerfilUsuario(e)}
+                  >
+                    <option value="0">Perfil usuário..</option>
+                    <option value="1">Matriz</option>
+                    <option value="2">Loja</option>
+                    <option value="3">Transportadora</option>
+                  </Input>
                 </FormGroup>
               </Col>
             </Row>
-            <Row>
+            {/* <Row>
               <Col xs="auto">
                 <FormGroup check>
                   <Label check>
@@ -216,7 +261,7 @@ function Config() {
                   </Label>
                 </FormGroup>
               </Col>
-            </Row>
+            </Row> */}
             <Row>
               <Col xs="auto">
                 <Button color="primary" className="mt-2" onClick={handleSave}>

@@ -27,7 +27,7 @@ export const TableWrapper = styled.div`
   justify-content: center;
   max-height: 350px;
   overflow-y: auto;
-  margin-top: 40px;
+  margin-top: 10px;
 
   @media (max-width: 360px) {
     margin-top: 16px;

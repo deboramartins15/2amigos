@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import PageDefault from "../Default";
 import api from "../../services/api";
@@ -15,15 +15,72 @@ import {
   Alert,
 } from "reactstrap";
 
-import { Wrapper } from "./styles.js";
-import { getUserId, isMatriz } from "../../services/auth";
+import { Wrapper, TableWrapper } from "./styles.js";
+import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
+import { getUserId, isMatriz, isTransportadora } from "../../services/auth";
+
+const columnsNF = [
+  {
+    name: "CNPJ",
+    prop: "CNPJ_FAVORECIDO",
+  },
+  {
+    name: "Razão Social",
+    prop: "RAZAOSOCIAL_FAVORECIDO",
+  },
+  {
+    name: "Emissão",
+    prop: "DT_EMISSAO",
+  },
+  {
+    name: "Chave",
+    prop: "CHAVE_NF",
+  },
+  {
+    name: "Numero",
+    prop: "NUMERO_NF",
+  },
+  {
+    name: "Total",
+    prop: "TOTAL_NF",
+  },
+  {
+    name: "Volume",
+    prop: "VOLUME",
+  },
+  {
+    name: "Peso",
+    prop: "PESO_LIQ",
+  }
+];
 
 function Leitura() {
   const [codBarra, setCodBarra] = useState("");
   const [msg, setMsg] = useState({ color: "", message: "" });
   const [visible, setVisible] = useState(true);
+  const [nfs, setNfs] = useState([]);
 
   const onDismiss = () => setVisible(false);
+
+  async function fetchData() {
+    try {
+      let response = {};
+
+      if (isMatriz() || (await isTransportadora())) {
+        response = await api.get("nf");
+      } else {
+        const loja = await api.get(`loja/${getUserId()}`);
+        response = await api.get("nf", { headers: { CNPJ: loja.data.CNPJ } });
+      }
+      setNfs(response.data);
+    } catch (error) {
+      console.log(error.response);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleLeitura = async (e) => {
     e.preventDefault();
@@ -118,6 +175,14 @@ function Leitura() {
             </Row>
           </Form>
         </Container>
+        <TableWrapper>
+          <TabelaPaginacao
+            registrosPorPagina={5}
+            fonteDeDados={nfs}
+            colunas={[...columnsNF]}
+            footerTitulo={"Total usuários:"}
+          />
+        </TableWrapper>
       </Wrapper>
     </PageDefault>
   );

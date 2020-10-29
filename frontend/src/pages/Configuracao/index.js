@@ -148,6 +148,9 @@ function Config() {
       case '3':
         setLoja({ ...loja, matriz: false , transportadora: true });
         break;
+      default:
+        setLoja({ ...loja, matriz: false , transportadora: false });
+        break;
     }    
   }
 
@@ -229,40 +232,7 @@ function Config() {
                 </FormGroup>
               </Col>
             </Row>
-            {/* <Row>
-              <Col xs="auto">
-                <FormGroup check>
-                  <Label check>
-                    <Input
-                      type="checkbox"
-                      checked={loja.matriz}
-                      onChange={(e) =>
-                        setLoja({ ...loja, matriz: !loja.matriz })
-                      }
-                    />{" "}
-                    Matriz
-                  </Label>
-                </FormGroup>
-              </Col>
-              <Col xs="auto">
-                <FormGroup check>
-                  <Label check>
-                    <Input
-                      type="checkbox"
-                      checked={loja.transportadora}
-                      onChange={(e) =>
-                        setLoja({
-                          ...loja,
-                          transportadora: !loja.transportadora,
-                        })
-                      }
-                    />{" "}
-                    Transportadora
-                  </Label>
-                </FormGroup>
-              </Col>
-            </Row> */}
-            <Row>
+            <Row className="row-buttons">
               <Col xs="auto">
                 <Button color="primary" className="mt-2" onClick={handleSave}>
                   Salvar

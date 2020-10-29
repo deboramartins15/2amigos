@@ -11,11 +11,11 @@ export const Container = styled.div`
 
 export const UploadWrapper = styled.div`
   width: 100%;
-  max-width: 400px;
+  max-width: 300px;
   margin: 30px;
   background: #576574;
   border-radius: 4px;
-  padding: 20px;
+  padding: 15px;
 `;
 
 export const TableWrapper = styled.div`
@@ -24,7 +24,6 @@ export const TableWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin: 16px auto;
 
   .form-group {
     width: 205px;

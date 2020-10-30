@@ -18,7 +18,7 @@ export const Wrapper = styled.div`
   overflow-y: auto;
 
   .container{
-    margin: 0;
+    margin-left: 100px;    
     padding: 0;
   }
 `;

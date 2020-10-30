@@ -41,7 +41,7 @@ class TabelaPaginacao extends React.Component {
       ordenacaoAtual: "default",
       textoParaPesquisar: "",
       colunaParaPesquisar: "selecionar",
-      statusParaPesquisar: "status",
+      statusParaPesquisar: 0,
       iconOrdenacao: faSort,
     };
 
@@ -124,22 +124,33 @@ class TabelaPaginacao extends React.Component {
     this.setState({ statusParaPesquisar: status });
     let listagem = [];
 
-    if (status === "status") {
+    if (parseInt(status) === 0) {
       listagem = this.props.fonteDeDados.filter((nf) => {
-        return nf[this.state.colunaParaPesquisar]
-          .toString()
-          .toLowerCase()
-          .includes(this.state.textoParaPesquisar);
+        if(this.state.colunaParaPesquisar !== "selecionar"){
+          return (          
+            nf[this.state.colunaParaPesquisar]
+              .toString()
+              .toLowerCase()
+              .includes(this.state.textoParaPesquisar)
+          );
+        }else{
+          return nf;
+        }
       });
     } else {
-      listagem = this.props.fonteDeDados.filter(
-        (nf) =>
-          nf.STATUS_ID.toString() === status &&
-          nf[this.state.colunaParaPesquisar]
-            .toString()
-            .toLowerCase()
-            .includes(this.state.textoParaPesquisar)
-      );
+      listagem = this.props.fonteDeDados.filter((nf) => {
+        if (this.state.colunaParaPesquisar !== "selecionar") {
+          return (
+            nf.STATUS_ID === parseInt(status) &&
+            nf[this.state.colunaParaPesquisar]
+              .toString()
+              .toLowerCase()
+              .includes(this.state.textoParaPesquisar)
+          );
+        } else {
+          return nf.STATUS_ID === parseInt(status);
+        }
+      });
     }
 
     this.setState({ itensPesquisa: listagem });
@@ -167,7 +178,7 @@ class TabelaPaginacao extends React.Component {
       });
     } else {
       const statusValue =
-        this.state.statusParaPesquisar === "status"
+        parseInt(this.state.statusParaPesquisar) === 0
           ? null
           : this.state.statusParaPesquisar;
 
@@ -178,7 +189,7 @@ class TabelaPaginacao extends React.Component {
               .toString()
               .toLowerCase()
               .includes(textoPesquisaMinimizado) &&
-            x["STATUS_ID"].toString() === statusValue
+            x["STATUS_ID"] === parseInt(statusValue)
           );
         } else {
           return x[this.state.colunaParaPesquisar]
@@ -373,7 +384,7 @@ class TabelaPaginacao extends React.Component {
                   className={`custom-select form-control`}
                   onChange={(e) => this.handleFilterStatus(e.target.value)}
                 >
-                  <option key={0} value="status">
+                  <option key={0} value={0}>
                     Status..
                   </option>
                   {StatusValues.map(function(status) {

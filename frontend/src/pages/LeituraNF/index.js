@@ -51,7 +51,7 @@ const columnsNF = [
   {
     name: "Peso",
     prop: "PESO_LIQ",
-  }
+  },
 ];
 
 function Leitura() {
@@ -64,15 +64,13 @@ function Leitura() {
 
   async function fetchData() {
     try {
-      let response = {};
+      const response = await api.get("nf");
 
-      if (isMatriz() || (await isTransportadora())) {
-        response = await api.get("nf");
-      } else {
-        const loja = await api.get(`loja/${getUserId()}`);
-        response = await api.get("nf", { headers: { CNPJ: loja.data.CNPJ } });
-      }
-      setNfs(response.data);
+      const nfsFiltered = response.data.filter((nf) => {
+        return nf.status[0].descricao === "Previsao de Recebimento";
+      });
+
+      setNfs(nfsFiltered);
     } catch (error) {
       console.log(error.response);
     }
@@ -82,25 +80,18 @@ function Leitura() {
     fetchData();
   }, []);
 
-  const handleLeitura = async (e) => {
-    e.preventDefault();
+  const handleLeitura = async (codigo) => {
+    // e.preventDefault();
+    setCodBarra(codigo);
+    console.log(typeof(codigo))
 
     try {
-      if (!codBarra) {
+      if (!codigo) {
         setMsgError("danger", "Informe o código de barra da NF !");
         return;
       }
 
-      let nf;
-
-      if (isMatriz()) {
-        nf = await api.get(`/leitura/${codBarra}`);
-      } else {
-        const loja = await api.get(`loja/${getUserId()}`);
-        nf = await api.get(`/leitura/${codBarra}`, {
-          headers: { CNPJ: loja.data.CNPJ },
-        });
-      }
+      const nf = await api.get(`/leitura/${codigo}`);
 
       if (nf.status === 204) {
         setMsgError("warning", "Nota fiscal não importada !");
@@ -113,6 +104,10 @@ function Leitura() {
 
         if (response.status === 200) {
           setMsgError("success", "Nota fiscal recebida com sucesso !");
+
+          const nfsFiltered = nfs.filter(nf => nf.CHAVE_NF !== codigo)
+          setNfs(nfsFiltered);
+          
           handleReset();
         }
       }
@@ -155,22 +150,10 @@ function Leitura() {
                     id="cod_barra"
                     placeholder="Cód. Barras.."
                     value={codBarra}
-                    onChange={(e) => setCodBarra(e.target.value)}
+                    onChange={(e) => handleLeitura(e.target.value)}
                     autoFocus
                   />
                 </FormGroup>
-              </Col>
-            </Row>
-            <Row xs="2">
-              <Col xs="auto">
-                <Button color="primary" onClick={handleLeitura}>
-                  Conferir
-                </Button>
-              </Col>
-              <Col xs="auto">
-                <Button color="secondary" onClick={handleReset}>
-                  Cancelar
-                </Button>
               </Col>
             </Row>
           </Form>

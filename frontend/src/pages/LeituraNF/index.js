@@ -11,13 +11,12 @@ import {
   FormGroup,
   Label,
   Input,
-  Button,
   Alert,
 } from "reactstrap";
 
 import { Wrapper, TableWrapper } from "./styles.js";
 import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
-import { getUserId, isMatriz, isTransportadora } from "../../services/auth";
+import { getUserId } from "../../services/auth";
 
 const columnsNF = [
   {

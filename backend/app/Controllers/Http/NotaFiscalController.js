@@ -210,7 +210,7 @@ class NotaFiscalController {
         
         if (csv) {
           fs.writeFile(
-            path.join(__dirname, "..", "..", "..", "app", "exports", filename),
+            path.join(__dirname, "..", "..", "..", "tmp", "exports", filename),
             csv,
             function(err) {
               if (err) throw err;
@@ -219,7 +219,7 @@ class NotaFiscalController {
 
           return response
             .status(200)
-            .send({ filepath: path.join(__dirname, "..", "..", "..", "app", "exports", filename), filename });
+            .send({ filepath: path.join(__dirname, "..", "..", "..", "tmp", "exports", filename), filename });
         }
 
         return response.status(400).send({ message: "Erro ao exportar dados" });
@@ -234,7 +234,7 @@ class NotaFiscalController {
       if(!params.filename) return response.status(400).send({message: "informe o nome do arquivo"});
 
       const filename = params.filename;
-      fs.unlinkSync(path.join(__dirname, "..", "..", "..", "app", "exports", filename))
+      fs.unlinkSync(path.join(__dirname, "..", "..", "..", "tmp", "exports", filename))
 
       return response.status(204).send()
     } catch (error) {

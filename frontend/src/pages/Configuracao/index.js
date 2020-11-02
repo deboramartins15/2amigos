@@ -258,6 +258,7 @@ function Config() {
                 { nome: "Editar", click: fetchLoja, class: "btn btn-info" },
               ]}
               footerTitulo={'Total usuários:'}
+              exportData={false}
             />
           </TableWrapper>
         </Container>

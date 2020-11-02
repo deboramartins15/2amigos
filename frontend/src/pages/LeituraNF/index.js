@@ -163,6 +163,7 @@ function Leitura() {
             fonteDeDados={nfs}
             colunas={[...columnsNF]}
             footerTitulo={"Total usuários:"}
+            exportData={true}
           />
         </TableWrapper>
       </Wrapper>

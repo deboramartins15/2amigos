@@ -5,8 +5,8 @@ const Status = use("App/Models/Status");
 const Loja = use("App/Models/Loja");
 
 const json2csv = require("json2csv").parse;
-const fs = require("fs")
-const path = require("path")
+const fs = require("fs");
+const path = require("path");
 
 const { getJsonFromXML } = use("App/Utils");
 class NotaFiscalController {
@@ -202,18 +202,42 @@ class NotaFiscalController {
 
       if (nfs) {
         const csv = json2csv(nfs.data, opts);
-        const dataArquivo = new Date().toLocaleDateString("pt-BR").replace("/","-").replace("/","-")
+        const dataArquivo = new Date()
+          .toLocaleDateString("pt-BR")
+          .replace("/", "-")
+          .replace("/", "-");
         const filename = `2amigos-notasfiscais${dataArquivo}.csv`;
+        
+        if (csv) {
+          fs.writeFile(
+            path.join(__dirname, "..", "..", "..", "app", "exports", filename),
+            csv,
+            function(err) {
+              if (err) throw err;
+            }
+          );
 
-        if(csv){
-          fs.writeFile(path.join(__dirname,"..","..","..","exports",filename), csv, function (err) {
-            if (err) throw err;
-                        
-            return response.status(200).send('Notas fiscais exportadas com sucesso');
-          });
+          return response
+            .status(200)
+            .send({ filepath: path.join(__dirname, "..", "..", "..", "app", "exports", filename), filename });
         }
+
+        return response.status(400).send({ message: "Erro ao exportar dados" });
       }
-    } catch (error) {      
+    } catch (error) {
+      return response.status(500).send(error.message);
+    }
+  }
+
+  async deleteCSV({ params,response}){
+    try {
+      if(!params.filename) return response.status(400).send({message: "informe o nome do arquivo"});
+
+      const filename = params.filename;
+      fs.unlinkSync(path.join(__dirname, "..", "..", "..", "app", "exports", filename))
+
+      return response.status(204).send()
+    } catch (error) {
       return response.status(500).send(error.message);
     }
   }

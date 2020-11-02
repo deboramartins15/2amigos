@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Form, Input, Table, Row, Col } from "reactstrap";
+import { Form, Input, Table, Row, Col, Button, Alert } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSort,
@@ -9,6 +9,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import "./Table.css";
+
+import api from "../../services/api";
 
 function VerificarOrdenacao(chaveOrdenacao, currentOrder) {
   if (currentOrder === "up") {
@@ -43,9 +45,16 @@ class TabelaPaginacao extends React.Component {
       colunaParaPesquisar: "selecionar",
       statusParaPesquisar: 0,
       iconOrdenacao: faSort,
+      arquivoExportacao: null,
+      visible: true,
+      msgErroExportacao: null,
+      corMsgExportacao: "info",
+      nomeArquivoExportacao: null
     };
 
     this.onPesquisar = this.onPesquisar.bind(this);
+    this.handleExportacao = this.handleExportacao.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -126,14 +135,12 @@ class TabelaPaginacao extends React.Component {
 
     if (parseInt(status) === 0) {
       listagem = this.props.fonteDeDados.filter((nf) => {
-        if(this.state.colunaParaPesquisar !== "selecionar"){
-          return (          
-            nf[this.state.colunaParaPesquisar]
-              .toString()
-              .toLowerCase()
-              .includes(this.state.textoParaPesquisar)
-          );
-        }else{
+        if (this.state.colunaParaPesquisar !== "selecionar") {
+          return nf[this.state.colunaParaPesquisar]
+            .toString()
+            .toLowerCase()
+            .includes(this.state.textoParaPesquisar);
+        } else {
           return nf;
         }
       });
@@ -330,8 +337,71 @@ class TabelaPaginacao extends React.Component {
     );
   };
 
+  async onDismiss() {
+    try {
+      if (this.state.nomeArquivoExportacao)
+        await api.delete(`/nf/export/csv/${this.state.nomeArquivoExportacao}`);
+    } catch (error) {
+      alert(error);
+    }
+
+    this.setState({
+      ...this.state,
+      visible: false,
+      arquivoExportacao: null,
+      nomeArquivoExportacao: null,
+      msgErroExportacao: null,
+      corMsgExportacao: "info",
+    });
+  }
+
+  async handleExportacao(e) {
+    e.preventDefault();
+
+    try {
+      let fonteDados;
+
+      if (this.state.itensPesquisa) {
+        fonteDados = this.state.itensPesquisa;
+      } else if (this.props.fonteDeDados.length > 0) {
+        fonteDados = this.props.fonteDeDados;
+      } else {
+        this.setState({
+          ...this.state,
+          visible: true,
+          msgErroExportacao: "Nenhum dado para exportar",
+        });
+
+        return
+      }
+
+      const response = await api.post("/nf/export/csv", { data: fonteDados });
+      
+      this.setState({
+        ...this.state,
+        arquivoExportacao: response.data.filepath,
+        visible: true,
+        nomeArquivoExportacao: response.data.filename
+      });
+    } catch (error) {
+      this.setState({
+        ...this.state,
+        visible: true,
+        msgErroExportacao: "Erro ao exportar dados",
+        corMsgExportacao: "danger",
+      });
+    }
+  }
+
   render() {
-    const { itensPaginacao, iconOrdenacao, itensPesquisa } = this.state;
+    const {
+      itensPaginacao,
+      iconOrdenacao,
+      itensPesquisa,
+      arquivoExportacao,
+      msgErroExportacao,
+      corMsgExportacao,
+    } = this.state;
     const {
       fonteDeDados,
       colunas,
@@ -340,6 +410,7 @@ class TabelaPaginacao extends React.Component {
       footerTitulo,
       filterStatus,
       StatusValues,
+      exportData,
     } = this.props;
     var existeAcoes = acoes && acoes.length > 0;
 
@@ -396,6 +467,31 @@ class TabelaPaginacao extends React.Component {
                   })}
                 </select>
               </Col>
+            )}
+            {exportData && (
+              <Col>
+                <Button onClick={this.handleExportacao}>Exportar dados</Button>
+              </Col>
+            )}
+            {(arquivoExportacao || msgErroExportacao) && (
+              <Alert
+                color={corMsgExportacao}
+                isOpen={this.state.visible}
+                toggle={this.onDismiss}
+              >
+                {msgErroExportacao ? (
+                  <span>{msgErroExportacao}</span>
+                ) : (
+                  <a
+                    href={`file:///${arquivoExportacao}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ alignSelf: "center" }}
+                  >
+                    Baixar arquivo
+                  </a>
+                )}
+              </Alert>
             )}
           </Row>
         </Form>

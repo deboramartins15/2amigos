@@ -176,7 +176,7 @@ class Dashboard extends Component {
               </UploadWrapper>
             </>
           )}
-          <TableWrapper marginInput={showUpload ? "2%" : "2.5%"}>
+          <TableWrapper marginInput={showUpload ? "2%" : "2.5%"}>            
             <TabelaPaginacao
               registrosPorPagina={4}
               fonteDeDados={nfs}
@@ -184,6 +184,7 @@ class Dashboard extends Component {
               footerTitulo={"Total NF:"}
               filterStatus={true}
               StatusValues={statusValues}
+              exportData={true}
             />
           </TableWrapper>
         </Container>

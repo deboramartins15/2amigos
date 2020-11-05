@@ -24,6 +24,7 @@ export const TableWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  margin-top: 16px;
 
   .form-group {
     width: 205px;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 
 import { Container, MenuList, MenuItem } from "./styles";
@@ -19,9 +19,7 @@ function Menu(props) {
     }
   }
 
-  useEffect(() => {
-    fetchData()    
-  }, [])
+  useMemo(() => fetchData(), []);
 
   return (
     <Container>

@@ -27,4 +27,6 @@ Route.resource("loja", "LojaController").apiOnly().middleware("auth");
 Route.resource("nf", "NotaFiscalController").apiOnly().middleware("auth");
 
 Route.get("/leitura/:codBarra","NotaFiscalController.findByCodBarra").middleware("auth")
+Route.post("/nf/export/csv","NotaFiscalController.exportToCSV").middleware("auth")
+Route.delete("/nf/export/csv/:filename","NotaFiscalController.deleteCSV").middleware("auth")
 Route.get("/status","StatusController.index").middleware("auth")

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import PageDefault from "../Default";
 import api from "../../services/api";
@@ -11,39 +11,86 @@ import {
   FormGroup,
   Label,
   Input,
-  Button,
   Alert,
 } from "reactstrap";
 
-import { Wrapper } from "./styles.js";
-import { getUserId, isMatriz } from "../../services/auth";
+import { Wrapper, TableWrapper } from "./styles.js";
+import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
+import { getUserId } from "../../services/auth";
+
+const columnsNF = [
+  {
+    name: "CNPJ",
+    prop: "CNPJ_FAVORECIDO",
+  },
+  {
+    name: "Razão Social",
+    prop: "RAZAOSOCIAL_FAVORECIDO",
+  },
+  {
+    name: "Emissão",
+    prop: "DT_EMISSAO",
+  },
+  {
+    name: "Chave",
+    prop: "CHAVE_NF",
+  },
+  {
+    name: "Numero",
+    prop: "NUMERO_NF",
+  },
+  {
+    name: "Total",
+    prop: "TOTAL_NF",
+  },
+  {
+    name: "Volume",
+    prop: "VOLUME",
+  },
+  {
+    name: "Peso",
+    prop: "PESO_LIQ",
+  },
+];
 
 function Leitura() {
   const [codBarra, setCodBarra] = useState("");
   const [msg, setMsg] = useState({ color: "", message: "" });
   const [visible, setVisible] = useState(true);
+  const [nfs, setNfs] = useState([]);
 
   const onDismiss = () => setVisible(false);
 
-  const handleLeitura = async (e) => {
-    e.preventDefault();
+  async function fetchData() {
+    try {
+      const response = await api.get("nf");
+
+      const nfsFiltered = response.data.filter((nf) => {
+        return nf.status[0].descricao === "Previsao de Recebimento";
+      });
+
+      setNfs(nfsFiltered);
+    } catch (error) {
+      console.log(error.response);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleLeitura = async (codigo) => {
+    // e.preventDefault();
+    setCodBarra(codigo);
+    console.log(typeof(codigo))
 
     try {
-      if (!codBarra) {
+      if (!codigo) {
         setMsgError("danger", "Informe o código de barra da NF !");
         return;
       }
 
-      let nf;
-
-      if (isMatriz()) {
-        nf = await api.get(`/leitura/${codBarra}`);
-      } else {
-        const loja = await api.get(`loja/${getUserId()}`);
-        nf = await api.get(`/leitura/${codBarra}`, {
-          headers: { CNPJ: loja.data.CNPJ },
-        });
-      }
+      const nf = await api.get(`/leitura/${codigo}`);
 
       if (nf.status === 204) {
         setMsgError("warning", "Nota fiscal não importada !");
@@ -56,6 +103,10 @@ function Leitura() {
 
         if (response.status === 200) {
           setMsgError("success", "Nota fiscal recebida com sucesso !");
+
+          const nfsFiltered = nfs.filter(nf => nf.CHAVE_NF !== codigo)
+          setNfs(nfsFiltered);
+          
           handleReset();
         }
       }
@@ -98,26 +149,23 @@ function Leitura() {
                     id="cod_barra"
                     placeholder="Cód. Barras.."
                     value={codBarra}
-                    onChange={(e) => setCodBarra(e.target.value)}
+                    onChange={(e) => handleLeitura(e.target.value)}
                     autoFocus
                   />
                 </FormGroup>
               </Col>
             </Row>
-            <Row xs="2">
-              <Col xs="auto">
-                <Button color="primary" onClick={handleLeitura}>
-                  Conferir
-                </Button>
-              </Col>
-              <Col xs="auto">
-                <Button color="secondary" onClick={handleReset}>
-                  Cancelar
-                </Button>
-              </Col>
-            </Row>
           </Form>
         </Container>
+        <TableWrapper>
+          <TabelaPaginacao
+            registrosPorPagina={5}
+            fonteDeDados={nfs}
+            colunas={[...columnsNF]}
+            footerTitulo={"Total usuários:"}
+            exportData={true}
+          />
+        </TableWrapper>
       </Wrapper>
     </PageDefault>
   );

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Form, Input, Table, Container, Row, Col } from "reactstrap";
+import { Form, Input, Table, Row, Col, Button, Alert } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSort,
@@ -9,6 +9,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import "./Table.css";
+
+import api from "../../services/api";
 
 function VerificarOrdenacao(chaveOrdenacao, currentOrder) {
   if (currentOrder === "up") {
@@ -41,11 +43,18 @@ class TabelaPaginacao extends React.Component {
       ordenacaoAtual: "default",
       textoParaPesquisar: "",
       colunaParaPesquisar: "selecionar",
-      statusParaPesquisar: "status",
+      statusParaPesquisar: 0,
       iconOrdenacao: faSort,
+      arquivoExportacao: null,
+      visible: true,
+      msgErroExportacao: null,
+      corMsgExportacao: "info",
+      nomeArquivoExportacao: null
     };
 
     this.onPesquisar = this.onPesquisar.bind(this);
+    this.handleExportacao = this.handleExportacao.bind(this);
+    this.onDismiss = this.onDismiss.bind(this);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -124,22 +133,31 @@ class TabelaPaginacao extends React.Component {
     this.setState({ statusParaPesquisar: status });
     let listagem = [];
 
-    if (status === "status") {
+    if (parseInt(status) === 0) {
       listagem = this.props.fonteDeDados.filter((nf) => {
-        return nf[this.state.colunaParaPesquisar]
-          .toString()
-          .toLowerCase()
-          .includes(this.state.textoParaPesquisar);
-      });
-    } else {
-      listagem = this.props.fonteDeDados.filter(
-        (nf) =>
-          nf.STATUS_ID.toString() === status &&
-          nf[this.state.colunaParaPesquisar]
+        if (this.state.colunaParaPesquisar !== "selecionar") {
+          return nf[this.state.colunaParaPesquisar]
             .toString()
             .toLowerCase()
-            .includes(this.state.textoParaPesquisar)
-      );
+            .includes(this.state.textoParaPesquisar);
+        } else {
+          return nf;
+        }
+      });
+    } else {
+      listagem = this.props.fonteDeDados.filter((nf) => {
+        if (this.state.colunaParaPesquisar !== "selecionar") {
+          return (
+            nf.STATUS_ID === parseInt(status) &&
+            nf[this.state.colunaParaPesquisar]
+              .toString()
+              .toLowerCase()
+              .includes(this.state.textoParaPesquisar)
+          );
+        } else {
+          return nf.STATUS_ID === parseInt(status);
+        }
+      });
     }
 
     this.setState({ itensPesquisa: listagem });
@@ -167,7 +185,7 @@ class TabelaPaginacao extends React.Component {
       });
     } else {
       const statusValue =
-        this.state.statusParaPesquisar === "status"
+        parseInt(this.state.statusParaPesquisar) === 0
           ? null
           : this.state.statusParaPesquisar;
 
@@ -178,7 +196,7 @@ class TabelaPaginacao extends React.Component {
               .toString()
               .toLowerCase()
               .includes(textoPesquisaMinimizado) &&
-            x["STATUS_ID"].toString() === statusValue
+            x["STATUS_ID"] === parseInt(statusValue)
           );
         } else {
           return x[this.state.colunaParaPesquisar]
@@ -319,8 +337,71 @@ class TabelaPaginacao extends React.Component {
     );
   };
 
+  async onDismiss() {
+    try {
+      if (this.state.nomeArquivoExportacao)
+        await api.delete(`/nf/export/csv/${this.state.nomeArquivoExportacao}`);
+    } catch (error) {
+      alert(error);
+    }
+
+    this.setState({
+      ...this.state,
+      visible: false,
+      arquivoExportacao: null,
+      nomeArquivoExportacao: null,
+      msgErroExportacao: null,
+      corMsgExportacao: "info",
+    });
+  }
+
+  async handleExportacao(e) {
+    e.preventDefault();
+
+    try {
+      let fonteDados;
+
+      if (this.state.itensPesquisa) {
+        fonteDados = this.state.itensPesquisa;
+      } else if (this.props.fonteDeDados.length > 0) {
+        fonteDados = this.props.fonteDeDados;
+      } else {
+        this.setState({
+          ...this.state,
+          visible: true,
+          msgErroExportacao: "Nenhum dado para exportar",
+        });
+
+        return
+      }
+
+      const response = await api.post("/nf/export/csv", { data: fonteDados });
+      
+      this.setState({
+        ...this.state,
+        arquivoExportacao: response.data.filepath,
+        visible: true,
+        nomeArquivoExportacao: response.data.filename
+      });
+    } catch (error) {
+      this.setState({
+        ...this.state,
+        visible: true,
+        msgErroExportacao: "Erro ao exportar dados",
+        corMsgExportacao: "danger",
+      });
+    }
+  }
+
   render() {
-    const { itensPaginacao, iconOrdenacao, itensPesquisa } = this.state;
+    const {
+      itensPaginacao,
+      iconOrdenacao,
+      itensPesquisa,
+      arquivoExportacao,
+      msgErroExportacao,
+      corMsgExportacao,
+    } = this.state;
     const {
       fonteDeDados,
       colunas,
@@ -329,11 +410,12 @@ class TabelaPaginacao extends React.Component {
       footerTitulo,
       filterStatus,
       StatusValues,
+      exportData,
     } = this.props;
     var existeAcoes = acoes && acoes.length > 0;
 
     return (
-      <Container>
+      <div className="table-container">
         <Form inline>
           <Row className="mb-2">
             <Col>
@@ -373,7 +455,7 @@ class TabelaPaginacao extends React.Component {
                   className={`custom-select form-control`}
                   onChange={(e) => this.handleFilterStatus(e.target.value)}
                 >
-                  <option key={0} value="status">
+                  <option key={0} value={0}>
                     Status..
                   </option>
                   {StatusValues.map(function(status) {
@@ -385,6 +467,31 @@ class TabelaPaginacao extends React.Component {
                   })}
                 </select>
               </Col>
+            )}
+            {exportData && (
+              <Col>
+                <Button onClick={this.handleExportacao}>Exportar dados</Button>
+              </Col>
+            )}
+            {(arquivoExportacao || msgErroExportacao) && (
+              <Alert
+                color={corMsgExportacao}
+                isOpen={this.state.visible}
+                toggle={this.onDismiss}
+              >
+                {msgErroExportacao ? (
+                  <span>{msgErroExportacao}</span>
+                ) : (
+                  <a
+                    href={`file:///${arquivoExportacao}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ alignSelf: "center" }}
+                  >
+                    Baixar arquivo
+                  </a>
+                )}
+              </Alert>
             )}
           </Row>
         </Form>
@@ -473,7 +580,7 @@ class TabelaPaginacao extends React.Component {
         </Table>
 
         {fonteDeDados.length > 0 && <this.renderizarPaginacao />}
-      </Container>
+      </div>
     );
   }
 }

@@ -29,3 +29,14 @@ export const BurguerButton = styled(Menu)`
     opacity: 0.8;
   }
 `;
+
+export const Wrapper = styled.div`
+  display:flex;
+  align-items: center;
+
+  > span{
+    color: #FFF;
+    font-size: 14px;
+    margin-left: 16px;
+  }
+`;

@@ -7,6 +7,8 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Config from "./pages/Configuracao";
 import Leitura from "./pages/LeituraNF";
+import Romaneios from "./pages/Romaneios/index.js";
+import Romaneio from "./pages/Romaneio/index.js";
 
 function App() {
   return (
@@ -17,6 +19,9 @@ function App() {
           <Route path="/dashboard" component={Dashboard}></Route>
           <Route path="/configuracao" component={Config}></Route>
           <Route path="/leitura" component={Leitura}></Route>
+          <Route path="/romaneios" component={Romaneios}></Route>
+          <Route path="/romaneio/:id" component={Romaneio}></Route>
+          <Route path="/romaneio" component={Romaneio}></Route>
         </Switch>
       </BrowserRouter>
       <GlobalStyles />

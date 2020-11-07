@@ -82,7 +82,6 @@ function Leitura() {
   const handleLeitura = async (codigo) => {
     // e.preventDefault();
     setCodBarra(codigo);
-    console.log(typeof(codigo))
 
     try {
       if (!codigo) {

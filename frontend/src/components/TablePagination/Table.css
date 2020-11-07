@@ -24,3 +24,7 @@ table {
   display:flex;
   flex-direction: column;
 }
+
+.form-inline .row button{
+  width: 150px;
+}

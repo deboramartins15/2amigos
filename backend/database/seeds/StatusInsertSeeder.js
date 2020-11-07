@@ -16,11 +16,14 @@ const Status = use("App/Models/Status");
 
 class StatusInsertSeeder {
   async run () {
-    await Status.create({descricao: 'Previsao de Recebimento'})
-    await Status.create({descricao: 'Recebida'})
-    await Status.create({descricao: 'Em Processo'})
-    await Status.create({descricao: 'Expedido'})
-    await Status.create({descricao: 'Entregue'})
+    await Status.findOrCreate({descricao: 'Previsao de Recebimento'})
+    await Status.findOrCreate({descricao: 'Recebida'})
+    await Status.findOrCreate({descricao: 'Em Processo'})
+    await Status.findOrCreate({descricao: 'Expedido'})
+    await Status.findOrCreate({descricao: 'Entregue'})
+    await Status.findOrCreate({descricao: 'Pendente'})
+    await Status.findOrCreate({descricao: 'Conferido'})
+    await Status.findOrCreate({descricao: 'Embarcado'})
   }
 }
 

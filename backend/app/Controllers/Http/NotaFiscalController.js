@@ -150,26 +150,9 @@ class NotaFiscalController {
     }
   }
 
-  async findByCodBarra({ params, response, request }) {
+  async findByCodBarra({ params, response }) {
     try {
-      const CNPJ = request.header("CNPJ");
-      const NF = await NotaFiscal.findBy("CHAVE_NF", params.codBarra);
-
-      if (CNPJ) {
-        if (NF.CNPJ_FAVORECIDO !== CNPJ) {
-          return response.status(400).send({
-            error: "Nota fiscal não é visivel para a loja solicitante"
-          });
-        }
-      }
-
-      if (NF.DT_RECEBIDO) {
-        return response.status(400).send({
-          error: "Nota fiscal já recebida"
-        });
-      }
-
-      return NF;
+      return await NotaFiscal.query().where("CHAVE_NF", "=" ,params.codBarra).with("status").fetch();
     } catch (error) {
       return response.status(500).send(error);
     }
@@ -217,20 +200,18 @@ class NotaFiscalController {
             }
           );
 
-          return response
-            .status(200)
-            .send({
-              filepath: path.join(
-                __dirname,
-                "..",
-                "..",
-                "..",
-                "tmp",
-                "exports",
-                filename
-              ),
+          return response.status(200).send({
+            filepath: path.join(
+              __dirname,
+              "..",
+              "..",
+              "..",
+              "tmp",
+              "exports",
               filename
-            });
+            ),
+            filename
+          });
         }
 
         return response.status(400).send({ message: "Erro ao exportar dados" });

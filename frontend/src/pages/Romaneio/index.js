@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import PageDefault from "../Default";
 
 import {
@@ -67,6 +68,7 @@ const Romaneio = () => {
   const [visible, setVisible] = useState(true);
 
   const history = useHistory();
+  const { id: RomaneioId } = useParams();
 
   const onDismiss = () => setVisible(false);
 
@@ -87,6 +89,14 @@ const Romaneio = () => {
             status.descricao !== "Embarcado"
         )
       );
+
+      if (RomaneioId) {
+        const response = await api.get(`romaneios/${RomaneioId}`);
+
+        setNfs(response.data[0].nota_fiscal);
+        setPlaca(response.data[0].PLACAVEICULO);
+        setDocMot(response.data[0].DOCMOTORISTA);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -97,7 +107,27 @@ const Romaneio = () => {
   }, []);
 
   async function handleLeitura(chave) {
-    if (!nfs.includes(chave)) setNfs([...nfs, chave]);
+    try {
+      const nf = await api.get(`/leitura/${chave}`);
+
+      if (nf.data[0].status[0].descricao !== "Recebida")
+        return setMsgError("danger", "Nota fiscal não recebida");
+
+      if (!nfs.includes(chave)) setNfs([...nfs, nf.data[0]]);
+    } catch (error) {
+      setMsgError(
+        "danger",
+        error.response.data.error
+          ? error.response.data.error
+          : error.response.data.detail
+      );
+    }
+  }
+
+  function handleDeleteNf(e, id) {
+    e.preventDefault();
+
+    setNfs(nfs.filter((nf) => nf.id !== id));
   }
 
   async function handleSave() {
@@ -105,14 +135,35 @@ const Romaneio = () => {
       if (!placa || !docMot || nfs.length === 0)
         return setMsgError("danger", "Campos obrigatórios em branco");
 
-      await api.post("romaneios", {
-        chavesNFE: nfs,
-        placa: placa,
-        docMotorista: docMot,
-        login: getUserId(),
-      });
+      if (RomaneioId) {
+        // PROCESSA AS NFS
+        nfs.map(async (nf) => {
+          await api.put(`nf/${nf.id}`, {
+            status: "Em Processo",
+            acao: "processamento",
+            login: getUserId(),
+          });
+        });
 
-      setMsgError("success", "Romaneio criado com sucesso !");
+        // CONFERE ROMANEIO
+        await api.put(`romaneios/${RomaneioId}`, {
+          status: "Conferido",
+          acao: "conferir",
+          login: getUserId(),
+          placa: placa,
+          docMotorista: docMot,
+        });
+      } else {
+        await api.post("romaneios", {
+          chavesNFE: nfs,
+          placa: placa,
+          docMotorista: docMot,
+          login: getUserId(),
+        });
+
+        setMsgError("success", "Romaneio criado com sucesso !");
+      }
+
       history.push(`/romaneios`);
     } catch (error) {
       setMsgError(
@@ -178,13 +229,16 @@ const Romaneio = () => {
           </Row>
         </Form>
         <TabelaPaginacao
-          registrosPorPagina={3}
+          registrosPorPagina={2}
           fonteDeDados={nfs}
           colunas={[...columnsNF]}
           footerTitulo={"Total NF:"}
           exportData={false}
           filterStatus={true}
           StatusValues={statusValues}
+          acoes={[
+            { nome: "Excluir", click: handleDeleteNf, class: "btn btn-danger" },
+          ]}
         />
         <Row className="row-buttons">
           <Col xs="auto">

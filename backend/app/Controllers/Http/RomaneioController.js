@@ -23,7 +23,7 @@ class RomaneioController {
 
       const romaneio = await Romaneio.query()
         .where("id", "=", params.id)
-        .with("nota_fiscal")
+        .with("nota_fiscal.status")
         .with("status")
         .fetch();
 

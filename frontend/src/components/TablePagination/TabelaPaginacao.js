@@ -68,7 +68,7 @@ class TabelaPaginacao extends React.Component {
     var { registrosPorPagina, fonteDeDados } = this.props;
     var { itensPesquisa, itensOrdenados } = this.state;
     var listaDeRegistros = [];
-
+    
     if (dadosParaPaginar) {
       listaDeRegistros = dadosParaPaginar;
     } else {

@@ -66,6 +66,8 @@ const Romaneio = () => {
   const [statusValues, setStatusValues] = useState([]);
   const [msg, setMsg] = useState({ color: "", message: "" });
   const [visible, setVisible] = useState(true);
+  const [conferido, setConferido] = useState(false);
+  const [embarcado, setEmbarcado] = useState(false);
 
   const history = useHistory();
   const { id: RomaneioId } = useParams();
@@ -93,6 +95,12 @@ const Romaneio = () => {
       if (RomaneioId) {
         const response = await api.get(`romaneios/${RomaneioId}`);
 
+        if (response.data[0].status[0].descricao === "Conferido")
+          setConferido(true);
+
+        if (response.data[0].status[0].descricao === "Embarcado")
+          setEmbarcado(true);
+
         setNfs(response.data[0].nota_fiscal);
         setPlaca(response.data[0].PLACAVEICULO);
         setDocMot(response.data[0].DOCMOTORISTA);
@@ -113,19 +121,41 @@ const Romaneio = () => {
       if (nf.data[0].status[0].descricao !== "Recebida")
         return setMsgError("danger", "Nota fiscal não recebida");
 
-      if (!nfs.includes(chave)) setNfs([...nfs, nf.data[0]]);
+      if (RomaneioId) {
+        const exists = nfs.filter((n) => n.CHAVE_NF === nf.data[0].CHAVE_NF);
+
+        if (exists.length === 0)
+          return setMsgError("danger", "Nota fiscal não pertence ao romaneio");
+
+        await api.put(`nf/${nf.data[0].id}`, {
+          status: "Em Processo",
+          acao: "processamento",
+          login: getUserId(),
+        });
+
+        await fetchData();
+      } else {
+        if (nf.data[0].ROMANEIO_ID)
+          return setMsgError("danger", "Nota fiscal já pertence a um romaneio");
+
+        if (!nfs.includes(chave)) setNfs([...nfs, nf.data[0]]);
+      }
     } catch (error) {
       setMsgError(
         "danger",
-        error.response.data.error
-          ? error.response.data.error
-          : error.response.data.detail
+        error.response.data ? error.response.data.error : error.response
       );
     }
   }
 
   function handleDeleteNf(e, id) {
     e.preventDefault();
+
+    if (conferido || embarcado)
+      return setMsgError(
+        "danger",
+        "Não é possível remover nota fiscal de romaneio conferido ou embarcado"
+      );
 
     setNfs(nfs.filter((nf) => nf.id !== id));
   }
@@ -136,26 +166,42 @@ const Romaneio = () => {
         return setMsgError("danger", "Campos obrigatórios em branco");
 
       if (RomaneioId) {
-        // PROCESSA AS NFS
-        nfs.map(async (nf) => {
-          await api.put(`nf/${nf.id}`, {
-            status: "Em Processo",
-            acao: "processamento",
-            login: getUserId(),
-          });
-        });
+        if (conferido) {
+          const requestData = {
+            acao: "update",
+            placa: placa,
+            docMotorista: docMot,
+          };
 
-        // CONFERE ROMANEIO
-        await api.put(`romaneios/${RomaneioId}`, {
-          status: "Conferido",
-          acao: "conferir",
-          login: getUserId(),
-          placa: placa,
-          docMotorista: docMot,
-        });
+          await api.put(`romaneios/${RomaneioId}`, requestData);
+        } else {
+          let canConferir = false;
+          nfs.map((nf) => {
+            if (nf.status[0].descricao === "Em Processo") {
+              canConferir = true;
+            } else {
+              canConferir = false;
+            }
+          });
+
+          if (canConferir) {
+            const requestData = {
+              status: "Conferido",
+              acao: "conferir",
+              login: getUserId(),
+              placa: placa,
+              docMotorista: docMot,
+            };
+
+            await api.put(`romaneios/${RomaneioId}`, requestData);
+          } else {
+            setMsgError("danger", "Existem notas fiscais não conferidas");
+            return;
+          }
+        }
       } else {
         await api.post("romaneios", {
-          chavesNFE: nfs,
+          nfs: nfs,
           placa: placa,
           docMotorista: docMot,
           login: getUserId(),
@@ -195,6 +241,7 @@ const Romaneio = () => {
                   placeholder="Placa Veículo.."
                   value={placa}
                   onChange={(e) => setPlaca(e.target.value)}
+                  disabled={embarcado}
                 />
               </FormGroup>
             </Col>
@@ -208,6 +255,7 @@ const Romaneio = () => {
                   placeholder="Doc. Motorista.."
                   value={docMot}
                   onChange={(e) => setDocMot(e.target.value)}
+                  disabled={embarcado}
                 />
               </FormGroup>
             </Col>
@@ -223,6 +271,7 @@ const Romaneio = () => {
                   placeholder="Cód. Barras NF.."
                   value={codBarra}
                   onChange={(e) => handleLeitura(e.target.value)}
+                  disabled={conferido || embarcado}
                 />
               </FormGroup>
             </Col>
@@ -242,7 +291,7 @@ const Romaneio = () => {
         />
         <Row className="row-buttons">
           <Col xs="auto">
-            <Button color="primary" className="mt-2" onClick={handleSave}>
+            <Button color="primary" className="mt-2" onClick={handleSave} disabled={embarcado}>
               Salvar
             </Button>
           </Col>

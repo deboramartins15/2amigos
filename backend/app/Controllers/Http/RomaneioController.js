@@ -36,21 +36,11 @@ class RomaneioController {
   async store({ request, response }) {
     try {
       const dataRequest = request.only([
-        "chavesNFE",
+        "nfs",
         "placa",
         "docMotorista",
         "login"
       ]);
-
-      dataRequest.chavesNFE.map(async chaveNFE => {
-        const NF = await NotaFiscal.findBy("CHAVE_NF", chaveNFE);
-        const romaneioExists = NF.ROMANEIO_ID;
-
-        if (romaneioExists)
-          return response.status(400).send({
-            error: `Nota fiscal ${NF.NUMERO_NF} já pertence a um romaneio`
-          });
-      });
 
       const statusPendente = await Status.findBy("descricao", "Pendente");
 
@@ -63,8 +53,8 @@ class RomaneioController {
 
       const romaneio = await Romaneio.create(data);
 
-      dataRequest.chavesNFE.map(async chaveNFE => {
-        const NF = await NotaFiscal.findBy("CHAVE_NF", chaveNFE);
+      dataRequest.nfs.map(async nf => {
+        const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
         NF.merge({ ROMANEIO_ID: romaneio.id });
         NF.save();
       });
@@ -75,7 +65,7 @@ class RomaneioController {
     }
   }
 
-  async update({ request, response }) {
+  async update({ request, response, params }) {
     try {
       const data = request.only([
         "status",

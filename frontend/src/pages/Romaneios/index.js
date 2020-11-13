@@ -62,8 +62,22 @@ const Romaneios = () => {
     e.preventDefault();
 
     try {
-      const response = await api.get(`romaneios/${id}`);
-      history.push(`/romaneio/${response.data[0].id}`);
+      history.push(`/romaneio/${id}`);
+    } catch (error) {
+      setMsgError(
+        "danger",
+        error.response.data.error
+          ? error.response.data.error
+          : error.response.data.detail
+      );
+    }
+  }
+
+  async function conferirRomaneio(e,id){
+    e.preventDefault();
+
+    try {
+      history.push(`/romaneio/leitura/${id}`);
     } catch (error) {
       setMsgError(
         "danger",
@@ -131,7 +145,8 @@ const Romaneios = () => {
           fonteDeDados={romaneios}
           colunas={[...columnsRomaneio]}
           acoes={[
-            { nome: "Conferir", click: fetchRomaneio, class: "btn btn-info" },
+            { nome: "Editar", click: fetchRomaneio, class: "btn btn-info" },
+            { nome: "Conferir", click: conferirRomaneio, class: "btn btn-info" },
             { nome: "Expedir", click: expedirRomaneio, class: "btn btn-info" },
           ]}
           footerTitulo={"Total romaneios:"}

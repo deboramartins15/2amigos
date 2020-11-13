@@ -90,7 +90,7 @@ function Config() {
         await api.post(`/loja`, { login, senha, CNPJ, matriz, transportadora });
       }
 
-      setMsgError("success", "Loja alterada com sucesso !");
+      setMsgError("success", "Usuário alterado com sucesso !");
       handleReset();
     } catch (error) {
       setMsgError(
@@ -126,7 +126,12 @@ function Config() {
       }
       
     } catch (error) {
-      setMsg(error.data.error);
+      setMsgError(
+        "danger",
+        error.response.data.error
+          ? error.response.data.error
+          : error.response.data.detail
+      );
     }
   };
 
@@ -152,6 +157,24 @@ function Config() {
         setLoja({ ...loja, matriz: false , transportadora: false });
         break;
     }    
+  }
+
+  const handleDelete = async (e, id) => {
+    e.preventDefault();
+
+    try {
+      await api.delete(`/loja/${id}`);
+      
+      setMsgError("success", "Usuário excluído com sucesso !");
+      handleReset()
+    } catch (error) {
+      setMsgError(
+        "danger",
+        error.response.data.error
+          ? error.response.data.error
+          : error.response.data.detail
+      );
+    }
   }
 
   return (
@@ -256,6 +279,7 @@ function Config() {
               colunas={[...columnsLoja]}
               acoes={[
                 { nome: "Editar", click: fetchLoja, class: "btn btn-info" },
+                { nome: "Excluir", click: handleDelete, class: "btn btn-danger" },
               ]}
               footerTitulo={'Total usuários:'}
               exportData={false}

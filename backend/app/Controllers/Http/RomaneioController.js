@@ -72,30 +72,50 @@ class RomaneioController {
         "acao",
         "login",
         "placa",
-        "docMotorista"
+        "docMotorista",
+        "nfs"
       ]);
 
       const romaneio = await Romaneio.findOrFail(params.id);
-      const statusId = await Status.findBy("descricao", data.status);
       let newData = {};
 
-      switch (data.acao.toLowerCase()) {
-        case "conferir":
-          newData = {
-            STATUS_ID: statusId.id,
-            USER_CONFERIDO: data.login,
-            DT_CONFERIDO: new Date().toLocaleString("pt-br"),
-            PLACAVEICULO: data.placa,
-            DOCMOTORISTA: data.docMotorista
-          };
-          break;
-        case "expedicao":
-          newData = {
-            STATUS_ID: statusId.id,
-            USER_EMBARQUE: data.login,
-            DT_EMBARQUE: new Date().toLocaleString("pt-br")
-          };
-          break;
+      if (
+        data.acao.toLowerCase() === "conferir" ||
+        data.acao.toLowerCase() === "expedicao"
+      ) {
+        const statusId = await Status.findBy("descricao", data.status);
+
+        switch (data.acao.toLowerCase()) {
+          case "conferir":
+            newData = {
+              STATUS_ID: statusId.id,
+              USER_CONFERIDO: data.login,
+              DT_CONFERIDO: new Date().toLocaleString("pt-br"),
+              PLACAVEICULO: data.placa,
+              DOCMOTORISTA: data.docMotorista
+            };
+            break;
+          case "expedicao":
+            newData = {
+              STATUS_ID: statusId.id,
+              USER_EMBARQUE: data.login,
+              DT_EMBARQUE: new Date().toLocaleString("pt-br")
+            };
+            break;
+        }
+      } else {
+        newData = {
+          PLACAVEICULO: data.placa,
+          DOCMOTORISTA: data.docMotorista
+        };
+
+        if (data.nfs) {
+          data.nfs.map(async nf => {
+            const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
+            NF.merge({ ROMANEIO_ID: romaneio.id });
+            NF.save();
+          });
+        }
       }
 
       romaneio.merge(newData);

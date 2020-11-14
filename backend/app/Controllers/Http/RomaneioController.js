@@ -1,5 +1,7 @@
 "use strict";
 
+const Mail = use("Mail");
+
 const NotaFiscal = use("App/Models/NotaFiscal");
 const Romaneio = use("App/Models/Romaneio");
 const Status = use("App/Models/Status");
@@ -122,8 +124,18 @@ class RomaneioController {
 
       await romaneio.save();
 
+      if (data.acao.toLowerCase() === "expedicao") {
+        await Mail.send("welcome", romaneio.toJSON(), (message) => {
+          message
+            .to("debora.martins@abracadabra.com.br")
+            .from("deehmartin@gmail.com")
+            .subject("Welcome to yardstick");
+        });
+      }
+
       return romaneio;
     } catch (error) {
+      console.log(error)
       return response.status(error.status).send(error);
     }
   }

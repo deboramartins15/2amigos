@@ -29,8 +29,12 @@ module.exports = {
     host: Env.get('SMTP_HOST'),
     secure: false,
     auth: {
+      type: "LOGIN",
       user: Env.get('MAIL_USERNAME'),
       pass: Env.get('MAIL_PASSWORD')
+    },
+    tls: {
+      rejectUnauthorized: false
     },
     maxConnections: 5,
     maxMessages: 100,

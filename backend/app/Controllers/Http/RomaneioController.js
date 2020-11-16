@@ -128,7 +128,7 @@ class RomaneioController {
         await Mail.send("welcome", romaneio.toJSON(), (message) => {
           message
             .to("debora.martins@abracadabra.com.br")
-            .from("deehmartin@gmail.com")
+            .from("2amigostransportadora@gmail.com")
             .subject("Welcome to yardstick");
         });
       }

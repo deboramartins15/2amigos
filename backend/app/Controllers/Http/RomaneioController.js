@@ -6,6 +6,8 @@ const NotaFiscal = use("App/Models/NotaFiscal");
 const Romaneio = use("App/Models/Romaneio");
 const Status = use("App/Models/Status");
 
+const { geraInfoManifestoConsolidado, geraInfoManifestoDestinatario, criaPDFConsolidado } = use("App/Utils")
+
 class RomaneioController {
   async index({ response }) {
     try {
@@ -79,58 +81,71 @@ class RomaneioController {
       ]);
 
       const romaneio = await Romaneio.findOrFail(params.id);
-      let newData = {};
+      // let newData = {};
 
-      if (
-        data.acao.toLowerCase() === "conferir" ||
-        data.acao.toLowerCase() === "expedicao"
-      ) {
-        const statusId = await Status.findBy("descricao", data.status);
+      // if (
+      //   data.acao.toLowerCase() === "conferir" ||
+      //   data.acao.toLowerCase() === "expedicao"
+      // ) {
+      //   const statusId = await Status.findBy("descricao", data.status);
 
-        switch (data.acao.toLowerCase()) {
-          case "conferir":
-            newData = {
-              STATUS_ID: statusId.id,
-              USER_CONFERIDO: data.login,
-              DT_CONFERIDO: new Date().toLocaleString("pt-br"),
-              PLACAVEICULO: data.placa,
-              DOCMOTORISTA: data.docMotorista
-            };
-            break;
-          case "expedicao":
-            newData = {
-              STATUS_ID: statusId.id,
-              USER_EMBARQUE: data.login,
-              DT_EMBARQUE: new Date().toLocaleString("pt-br")
-            };
-            break;
-        }
-      } else {
-        newData = {
-          PLACAVEICULO: data.placa,
-          DOCMOTORISTA: data.docMotorista
-        };
+      //   switch (data.acao.toLowerCase()) {
+      //     case "conferir":
+      //       newData = {
+      //         STATUS_ID: statusId.id,
+      //         USER_CONFERIDO: data.login,
+      //         DT_CONFERIDO: new Date().toLocaleString("pt-br"),
+      //         PLACAVEICULO: data.placa,
+      //         DOCMOTORISTA: data.docMotorista
+      //       };
+      //       break;
+      //     case "expedicao":
+      //       newData = {
+      //         STATUS_ID: statusId.id,
+      //         USER_EMBARQUE: data.login,
+      //         DT_EMBARQUE: new Date().toLocaleString("pt-br")
+      //       };
+      //       break;
+      //   }
+      // } else {
+      //   newData = {
+      //     PLACAVEICULO: data.placa,
+      //     DOCMOTORISTA: data.docMotorista
+      //   };
 
-        if (data.nfs) {
-          data.nfs.map(async nf => {
-            const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
-            NF.merge({ ROMANEIO_ID: romaneio.id });
-            NF.save();
-          });
-        }
-      }
+      //   if (data.nfs) {
+      //     data.nfs.map(async nf => {
+      //       const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
+      //       NF.merge({ ROMANEIO_ID: romaneio.id });
+      //       NF.save();
+      //     });
+      //   }
+      // }
 
-      romaneio.merge(newData);
+      // romaneio.merge(newData);
 
-      await romaneio.save();
+      // await romaneio.save();
 
       if (data.acao.toLowerCase() === "expedicao") {
-        await Mail.send("welcome", romaneio.toJSON(), (message) => {
-          message
-            .to("debora.martins@abracadabra.com.br")
-            .from("2amigostransportadora@gmail.com")
-            .subject("Welcome to yardstick");
-        });
+        const consolidado = await geraInfoManifestoConsolidado(romaneio.id)
+        
+        // const destinatarios = await geraInfoManifestoDestinatario(romaneio.id)
+
+        await criaPDFConsolidado(consolidado)
+
+        // await Mail.send("welcome", romaneio.toJSON(), (message) => {
+        //   message
+        //     .to("debora.martins@abracadabra.com.br")
+        //     .from("2amigostransportadora@gmail.com")
+        //     .subject("Relatório consolidado notas fiscais");
+        // });
+
+        // await Mail.send("welcome", destinatarios.toJSON(), (message) => {
+        //   message
+        //     .to("debora.martins@abracadabra.com.br")
+        //     .from("2amigostransportadora@gmail.com")
+        //     .subject("Relatório destinatários notas fiscais");
+        // });
       }
 
       return romaneio;

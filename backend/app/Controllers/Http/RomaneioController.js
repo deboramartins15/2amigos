@@ -89,50 +89,50 @@ class RomaneioController {
       ]);
 
       const romaneio = await Romaneio.findOrFail(params.id);
-      // let newData = {};
+      let newData = {};
 
-      // if (
-      //   data.acao.toLowerCase() === "conferir" ||
-      //   data.acao.toLowerCase() === "expedicao"
-      // ) {
-      //   const statusId = await Status.findBy("descricao", data.status);
+      if (
+        data.acao.toLowerCase() === "conferir" ||
+        data.acao.toLowerCase() === "expedicao"
+      ) {
+        const statusId = await Status.findBy("descricao", data.status);
 
-      //   switch (data.acao.toLowerCase()) {
-      //     case "conferir":
-      //       newData = {
-      //         STATUS_ID: statusId.id,
-      //         USER_CONFERIDO: data.login,
-      //         DT_CONFERIDO: new Date().toLocaleString("pt-br"),
-      //         PLACAVEICULO: data.placa,
-      //         DOCMOTORISTA: data.docMotorista
-      //       };
-      //       break;
-      //     case "expedicao":
-      //       newData = {
-      //         STATUS_ID: statusId.id,
-      //         USER_EMBARQUE: data.login,
-      //         DT_EMBARQUE: new Date().toLocaleString("pt-br")
-      //       };
-      //       break;
-      //   }
-      // } else {
-      //   newData = {
-      //     PLACAVEICULO: data.placa,
-      //     DOCMOTORISTA: data.docMotorista
-      //   };
+        switch (data.acao.toLowerCase()) {
+          case "conferir":
+            newData = {
+              STATUS_ID: statusId.id,
+              USER_CONFERIDO: data.login,
+              DT_CONFERIDO: new Date().toLocaleString("pt-br"),
+              PLACAVEICULO: data.placa,
+              DOCMOTORISTA: data.docMotorista
+            };
+            break;
+          case "expedicao":
+            newData = {
+              STATUS_ID: statusId.id,
+              USER_EMBARQUE: data.login,
+              DT_EMBARQUE: new Date().toLocaleString("pt-br")
+            };
+            break;
+        }
+      } else {
+        newData = {
+          PLACAVEICULO: data.placa,
+          DOCMOTORISTA: data.docMotorista
+        };
 
-      //   if (data.nfs) {
-      //     data.nfs.map(async nf => {
-      //       const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
-      //       NF.merge({ ROMANEIO_ID: romaneio.id });
-      //       NF.save();
-      //     });
-      //   }
-      // }
+        if (data.nfs) {
+          data.nfs.map(async nf => {
+            const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
+            NF.merge({ ROMANEIO_ID: romaneio.id });
+            NF.save();
+          });
+        }
+      }
 
-      // romaneio.merge(newData);
+      romaneio.merge(newData);
 
-      // await romaneio.save();
+      await romaneio.save();
 
       if (data.acao.toLowerCase() === "expedicao") {
         const consolidado = await geraInfoManifestoConsolidado(romaneio.id);
@@ -142,70 +142,74 @@ class RomaneioController {
         await criaPDFConsolidado(consolidado);
         await criaPDFDestinatarios(destinatarios);
 
-        // await Mail.send("welcome", romaneio.toJSON(), message => {
-        //   message
-        //     .to("debora.martins@abracadabra.com.br")
-        //     .from("2amigostransportadora@gmail.com")
-        //     .subject("Relatório consolidado notas fiscais")
-        //     .attach(
-        //       path.join(
-        //         __dirname,
-        //         "..",
-        //         "..",
-        //         "tmp",
-        //         "exports",
-        //         "relConsolidado.pdf"
-        //       ),
-        //       {
-        //         filename: "Consolidado.pdf"
-        //       }
-        //     );
-        // });
+        await Mail.send("welcome", romaneio.toJSON(), message => {
+          message
+            .to("debora.martins@abracadabra.com.br")
+            .from("2amigostransportadora@gmail.com")
+            .subject("Relatório consolidado notas fiscais")
+            .attach(
+              path.join(
+                __dirname,
+                "..",
+                "..",
+                "..",
+                "tmp",
+                "exports",
+                "relConsolidado.pdf"
+              ),
+              {
+                filename: "Consolidado.pdf"
+              }
+            );
+        });
 
-        // fs.unlinkSync(
-        //   path.join(
-        //     __dirname,
-        //     "..",
-        //     "..",
-        //     "tmp",
-        //     "exports",
-        //     "relConsolidado.pdf"
-        //   )
-        // );
+        fs.unlinkSync(
+          path.join(
+            __dirname,
+            "..",
+            "..",
+            "..",
+            "tmp",
+            "exports",
+            "relConsolidado.pdf"
+          )
+        );
 
-        // await Mail.send("welcome", romaneio.toJSON(), (message) => {
-        //   message
-        //     .to("debora.martins@abracadabra.com.br")
-        //     .from("2amigostransportadora@gmail.com")
-        //     .subject("Relatório destinatários notas fiscais")
-        //     .attach(
-        //       path.join(
-        //         __dirname,
-        //         "..",
-        //         "..",
-        //         "tmp",
-        //         "exports",
-        //         "relDestinatario.pdf"
-        //       ),
-        //       {
-        //         filename: "Destinatarios.pdf"
-        //       }
-        //     );
-        // });
+         await Mail.send("welcome", romaneio.toJSON(), (message) => {
+          message
+            .to("debora.martins@abracadabra.com.br")
+            .from("2amigostransportadora@gmail.com")
+            .subject("Relatório destinatários notas fiscais")
+            .attach(
+              path.join(
+                __dirname,
+                "..",
+                "..",
+                "..",
+                "tmp",
+                "exports",
+                "relDestinatario.pdf"
+              ),
+              {
+                filename: "Destinatarios.pdf"
+              }
+            );
+        });
 
-        // fs.unlinkSync(
-        //   path.join(
-        //     __dirname,
-        //     "..",
-        //     "..",
-        //     "tmp",
-        //     "exports",
-        //     "relDestinatario.pdf"
-        //   )
-        // );
+        fs.unlinkSync(
+          path.join(
+            __dirname,
+            "..",
+            "..",
+            "..",
+            "tmp",
+            "exports",
+            "relDestinatario.pdf"
+          )
+        );
       }
 
-      return romaneio;
+      return response.status(200).send(romaneio);
     } catch (error) {
       console.log(error);
       return response.status(error.status).send(error);

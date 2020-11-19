@@ -95,6 +95,8 @@ const Romaneios = () => {
       const response = await api.get(`romaneios/${id}`);
 
       if (response.data[0].status[0].descricao === "Conferido") {
+        setMsgError("info", "Expedindo romaneio...");
+        
         response.data[0].nota_fiscal.map(async (nf) => {
           await api.put(`nf/${nf.id}`, {
             status: "Expedido",
@@ -107,7 +109,7 @@ const Romaneios = () => {
           status: "Embarcado",
           acao: "expedicao",
           login: getUserId(),
-        });
+        },{timeout: 20000});
 
         fetchData();
 
@@ -116,6 +118,7 @@ const Romaneios = () => {
         setMsgError("danger", "Romaneio não conferido");
       }
     } catch (error) {
+      console.log(error)
       setMsgError(
         "danger",
         error.response.data.error

@@ -56,18 +56,27 @@ function geraTableDestinatarios(destinatarios) {
             <td>${n.TOTAL_NF}</td>
           </tr>`;
           })}
+          <tfooter>
+          <tr>
+            <td>Totais:</td>
+            <td>${destinatarios.nfs[nf].totais.QtdNfs}</td>            
+            <td>${destinatarios.nfs[nf].totais.totalVolume}</td> 
+            <td></td>           
+            <td>${destinatarios.nfs[nf].totais.totalNf}</td>
+          </tr>
+        </tfooter>
         </table>
       </div>
     `;
   });
 
-  temp = temp.join("")
+  temp = temp.join("");
 
-  while(temp.indexOf(",") >= 0){
-    temp = temp.replace(",", " ")
+  while (temp.indexOf(",") >= 0) {
+    temp = temp.replace(",", " ");
   }
 
-  return temp
+  return temp;
 }
 
 /**
@@ -138,14 +147,6 @@ async function geraInfoManifestoDestinatario(romaneioId) {
 
   const nfsJSON = nfs.toJSON();
 
-  let totalNf = 0;
-  let totalVolume = 0;
-
-  nfsJSON.map(nf => {
-    totalNf += parseFloat(nf.TOTAL_NF);
-    totalVolume += parseFloat(nf.VOLUME);
-  });
-
   const destinatarios = nfsJSON.reduce(
     (
       obj,
@@ -172,14 +173,23 @@ async function geraInfoManifestoDestinatario(romaneioId) {
     {}
   );
 
+  Object.keys(destinatarios).map(dest => {
+    let totalNf = 0;
+    let totalVolume = 0;
+    destinatarios[dest].map(nf => {
+      totalNf += parseFloat(nf.TOTAL_NF);
+      totalVolume += parseFloat(nf.VOLUME);
+    });
+    destinatarios[dest].totais = {
+      totalNf,
+      totalVolume,
+      QtdNfs: destinatarios[dest].length
+    };
+  });
+
   return {
     romaneio: romaneio.toJSON(),
-    nfs: destinatarios,
-    totais: {
-      valorNf: totalNf.toFixed(2),
-      Volume: totalVolume,
-      QtdNfs: nfsJSON.length
-    }
+    nfs: destinatarios
   };
 }
 
@@ -200,6 +210,11 @@ async function criaPDFConsolidado(consolidado) {
       td {
         min-width: 80px;
         font-size: 12px;
+      }
+
+      img{
+        width: 80px;
+        heigth: 80px;
       }
 
       .title {
@@ -229,7 +244,14 @@ async function criaPDFConsolidado(consolidado) {
       }
     </style>
     <body>
-      <p>Transportadora 2 amigos</p>      
+      <img src=${path.join(
+        "file://",
+        __dirname,
+        "..",
+        "..",
+        "tmp",
+        "logo-2amigos.jpeg"
+      )} alt="logo" />
       <h1 class="title">Relatório Consolidado</h1>
       <p>
         <strong>Romaneio:</strong> ${consolidado.romaneio.id}
@@ -258,16 +280,16 @@ async function criaPDFConsolidado(consolidado) {
         </tr>
         `;
           })
-          .join()
+          .join("")
           .replace(",", " ")}
         <tfooter>
           <tr>
             <td>Total Qtd</td>
-            <td>2</td>
+            <td>${consolidado.totais.QtdNfs}</td>
             <td>Total Volume</td>
-            <td>75</td>
+            <td>${consolidado.totais.Volume}</td>
             <td>Total Valor</td>
-            <td>15537,60</td>
+            <td>${consolidado.totais.valorNf}</td>
           </tr>
         </tfooter>
       </table>
@@ -323,6 +345,11 @@ async function criaPDFDestinatarios(destinatarios) {
         font-size: 12px;
       }
 
+      img{
+        width: 80px;
+        heigth: 80px;
+      }
+
       .title {
         font-size: 24px;
         text-align: center;
@@ -350,7 +377,14 @@ async function criaPDFDestinatarios(destinatarios) {
       }
     </style>
     <body>
-      <p>Transportadora 2 amigos</p>      
+      <img src=${path.join(
+        "file://",
+        __dirname,
+        "..",
+        "..",
+        "tmp",
+        "logo-2amigos.jpeg"
+      )} alt="logo" />      
       <h1 class="title">Relatório Destinatários</h1>
       <p>
         <strong>Romaneio:</strong> ${destinatarios.romaneio.id}

@@ -6,7 +6,15 @@ const NotaFiscal = use("App/Models/NotaFiscal");
 const Romaneio = use("App/Models/Romaneio");
 const Status = use("App/Models/Status");
 
-const { geraInfoManifestoConsolidado, geraInfoManifestoDestinatario, criaPDFConsolidado } = use("App/Utils")
+const path = require("path");
+const fs = require("fs");
+
+const {
+  geraInfoManifestoConsolidado,
+  geraInfoManifestoDestinatario,
+  criaPDFConsolidado,
+  criaPDFDestinatarios
+} = use("App/Utils");
 
 class RomaneioController {
   async index({ response }) {
@@ -127,30 +135,79 @@ class RomaneioController {
       // await romaneio.save();
 
       if (data.acao.toLowerCase() === "expedicao") {
-        const consolidado = await geraInfoManifestoConsolidado(romaneio.id)
-        
-        // const destinatarios = await geraInfoManifestoDestinatario(romaneio.id)
+        const consolidado = await geraInfoManifestoConsolidado(romaneio.id);
 
-        await criaPDFConsolidado(consolidado)
+        const destinatarios = await geraInfoManifestoDestinatario(romaneio.id)
+
+        await criaPDFConsolidado(consolidado);
+        await criaPDFDestinatarios(destinatarios);
+
+        // await Mail.send("welcome", romaneio.toJSON(), message => {
+        //   message
+        //     .to("debora.martins@abracadabra.com.br")
+        //     .from("2amigostransportadora@gmail.com")
+        //     .subject("Relatório consolidado notas fiscais")
+        //     .attach(
+        //       path.join(
+        //         __dirname,
+        //         "..",
+        //         "..",
+        //         "tmp",
+        //         "exports",
+        //         "relConsolidado.pdf"
+        //       ),
+        //       {
+        //         filename: "Consolidado.pdf"
+        //       }
+        //     );
+        // });
+
+        // fs.unlinkSync(
+        //   path.join(
+        //     __dirname,
+        //     "..",
+        //     "..",
+        //     "tmp",
+        //     "exports",
+        //     "relConsolidado.pdf"
+        //   )
+        // );
 
         // await Mail.send("welcome", romaneio.toJSON(), (message) => {
         //   message
         //     .to("debora.martins@abracadabra.com.br")
         //     .from("2amigostransportadora@gmail.com")
-        //     .subject("Relatório consolidado notas fiscais");
+        //     .subject("Relatório destinatários notas fiscais")
+        //     .attach(
+        //       path.join(
+        //         __dirname,
+        //         "..",
+        //         "..",
+        //         "tmp",
+        //         "exports",
+        //         "relDestinatario.pdf"
+        //       ),
+        //       {
+        //         filename: "Destinatarios.pdf"
+        //       }
+        //     );
         // });
 
-        // await Mail.send("welcome", destinatarios.toJSON(), (message) => {
-        //   message
-        //     .to("debora.martins@abracadabra.com.br")
-        //     .from("2amigostransportadora@gmail.com")
-        //     .subject("Relatório destinatários notas fiscais");
-        // });
+        // fs.unlinkSync(
+        //   path.join(
+        //     __dirname,
+        //     "..",
+        //     "..",
+        //     "tmp",
+        //     "exports",
+        //     "relDestinatario.pdf"
+        //   )
+        // );
       }
 
       return romaneio;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return response.status(error.status).send(error);
     }
   }

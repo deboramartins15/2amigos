@@ -54,6 +54,16 @@ class LojaController {
 
     return loja;
   }
+
+  async destroy({ params, response }) {
+    try {
+      const loja = await Loja.find(params.id);
+
+      await loja.delete();
+    } catch (error) {
+      return response.status(error.status).send(error);
+    }
+  }
 }
 
 module.exports = LojaController;

@@ -3,18 +3,18 @@
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use("Model");
 
-class NotaFiscal extends Model {
+class Romaneio extends Model {
   static get table() {
-    return "nota_fiscal";
+    return "romaneios";
   }
 
   status() {
     return this.hasMany("App/Models/Status", "STATUS_ID", "id");
   }
 
-  romaneio(){
-    return this.belongsTo("App/Models/Romaneio", "ROMANEIO_ID", "id")
+  nota_fiscal() {
+    return this.hasMany("App/Models/NotaFiscal", "id", "ROMANEIO_ID");
   }
 }
 
-module.exports = NotaFiscal;
+module.exports = Romaneio;

@@ -11,6 +11,10 @@ class Status extends Model {
   nota_fiscal() {
     return this.belongsTo("App/Models/NotaFiscal", "STATUS_ID", "id");
   }
+  
+  romaneio() {
+    return this.belongsTo("App/Models/Romaneio", "STATUS_ID", "id");
+  }
 }
 
 module.exports = Status;

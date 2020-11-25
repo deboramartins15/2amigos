@@ -144,7 +144,7 @@ class RomaneioController {
 
         await Mail.send("welcome", romaneio.toJSON(), message => {
           message
-            .to("debora.martins@abracadabra.com.br")
+            .to("david.ramos@2amigos.com.br")
             .from("2amigostransportadora@gmail.com")
             .subject("Relatório consolidado notas fiscais")
             .attach(
@@ -177,7 +177,7 @@ class RomaneioController {
 
          await Mail.send("welcome", romaneio.toJSON(), (message) => {
           message
-            .to("debora.martins@abracadabra.com.br")
+            .to("david.ramos@2amigos.com.br")
             .from("2amigostransportadora@gmail.com")
             .subject("Relatório destinatários notas fiscais")
             .attach(

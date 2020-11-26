@@ -81,7 +81,7 @@ function Leitura() {
 
   const handleLeitura = async (codigo) => {
     // e.preventDefault();
-    setCodBarra(codigo);
+    setCodBarra(codigo.trim());
 
     try {
       if (!codigo) {
@@ -89,7 +89,7 @@ function Leitura() {
         return;
       }
 
-      const nf = await api.get(`/leitura/${codigo}`);
+      const nf = await api.get(`/leitura/${codigo.trim()}`);
 
       if (nf.status === 204) {
         setMsgError("warning", "Nota fiscal não importada !");
@@ -97,8 +97,8 @@ function Leitura() {
         if (nf.data.DT_RECEBIDO) {
           return setMsgError("danger", "Nota fiscal já recebida");
         }
-
-        const response = await api.put(`nf/${nf.data.id}`, {
+        
+        const response = await api.put(`nf/${nf.data[0].id}`, {
           status: "Recebida",
           acao: "recebimento",
           login: getUserId(),
@@ -107,7 +107,7 @@ function Leitura() {
         if (response.status === 200) {        
           setMsgError("success", "Nota fiscal recebida com sucesso !");
 
-          const nfsFiltered = nfs.filter((nf) => nf.CHAVE_NF !== codigo);
+          const nfsFiltered = nfs.filter((nf) => nf.CHAVE_NF !== codigo.trim());
           setNfs(nfsFiltered);
 
           handleReset();

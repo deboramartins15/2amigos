@@ -167,17 +167,17 @@ class RomaneioController {
             );
         });
 
-        fs.unlinkSync(
-          path.join(
-            __dirname,
-            "..",
-            "..",
-            "..",
-            "tmp",
-            "exports",
-            "relConsolidado.pdf"
-          )
-        );
+        // fs.unlinkSync(
+        //   path.join(
+        //     __dirname,
+        //     "..",
+        //     "..",
+        //     "..",
+        //     "tmp",
+        //     "exports",
+        //     "relConsolidado.pdf"
+        //   )
+        // );
 
         await Mail.send("welcome", romaneio.toJSON(), message => {
           message
@@ -200,17 +200,17 @@ class RomaneioController {
             );
         });
 
-        fs.unlinkSync(
-          path.join(
-            __dirname,
-            "..",
-            "..",
-            "..",
-            "tmp",
-            "exports",
-            "relDestinatario.pdf"
-          )
-        );
+        // fs.unlinkSync(
+        //   path.join(
+        //     __dirname,
+        //     "..",
+        //     "..",
+        //     "..",
+        //     "tmp",
+        //     "exports",
+        //     "relDestinatario.pdf"
+        //   )
+        // );
       }
 
       return response.status(200).send(romaneio);

@@ -15,6 +15,10 @@ class Romaneio extends Model {
   nota_fiscal() {
     return this.hasMany("App/Models/NotaFiscal", "id", "ROMANEIO_ID");
   }
+
+  veiculo(){
+    return this.hasOne("App/Models/TipoVeiculo", "id", "VEICULO")
+  }
 }
 
 module.exports = Romaneio;

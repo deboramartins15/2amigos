@@ -51,6 +51,7 @@ class RomaneioController {
         "nfs",
         "placa",
         "docMotorista",
+        "veiculo",
         "login"
       ]);
 
@@ -60,6 +61,7 @@ class RomaneioController {
         PLACAVEICULO: dataRequest.placa,
         DOCMOTORISTA: dataRequest.docMotorista,
         USER_CRIACAO: dataRequest.login,
+        VEICULO: dataRequest.veiculo,
         STATUS_ID: statusPendente.id
       };
 
@@ -85,6 +87,7 @@ class RomaneioController {
         "login",
         "placa",
         "docMotorista",
+        "veiculo",
         "nfs"
       ]);
 
@@ -118,7 +121,8 @@ class RomaneioController {
       } else {
         newData = {
           PLACAVEICULO: data.placa,
-          DOCMOTORISTA: data.docMotorista
+          DOCMOTORISTA: data.docMotorista,
+          VEICULO: data.veiculo
         };
 
         if (data.nfs) {
@@ -137,7 +141,7 @@ class RomaneioController {
       if (data.acao.toLowerCase() === "expedicao") {
         const consolidado = await geraInfoManifestoConsolidado(romaneio.id);
 
-        const destinatarios = await geraInfoManifestoDestinatario(romaneio.id)
+        const destinatarios = await geraInfoManifestoDestinatario(romaneio.id);
 
         await criaPDFConsolidado(consolidado);
         await criaPDFDestinatarios(destinatarios);
@@ -175,7 +179,7 @@ class RomaneioController {
           )
         );
 
-         await Mail.send("welcome", romaneio.toJSON(), (message) => {
+        await Mail.send("welcome", romaneio.toJSON(), message => {
           message
             .to("david.ramos@2amigos.com.br")
             .from("2amigostransportadora@gmail.com")

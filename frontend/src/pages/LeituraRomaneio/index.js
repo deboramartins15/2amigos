@@ -91,6 +91,15 @@ const LeituraRomaneio = () => {
       if (RomaneioId) {
         const response = await api.get(`romaneios/${RomaneioId}`);
 
+        if(response.data[0].nota_fiscal.length === 0){
+          setMsgError(
+            "danger",
+            "Romaneio não possui notas fiscais."
+          );
+
+          setDisabled(true);
+        }
+
         setNfs(response.data[0].nota_fiscal);
 
         if (response.data[0].status[0].descricao !== "Pendente") {
@@ -113,7 +122,7 @@ const LeituraRomaneio = () => {
 
   async function handleLeitura(chave) {
     try {
-      const nf = await api.get(`/leitura/${chave}`);
+      const nf = await api.get(`/leitura/${chave.trim()}`);
 
       if (nf.data[0].status[0].descricao !== "Recebida")
         return setMsgError("danger", "Nota fiscal não recebida");

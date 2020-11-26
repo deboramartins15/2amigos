@@ -12,3 +12,9 @@ export const Container = styled.div`
     justify-content: flex-end;
   }
 `;
+
+export const Header = styled.h2`
+  font-size: 22px;
+  color: gray;
+  margin-bottom: 30px;  
+`;

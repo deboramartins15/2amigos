@@ -13,7 +13,7 @@ import {
   Alert,
 } from "reactstrap";
 
-import { Container } from "./styles";
+import { Container, Header } from "./styles";
 import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
 import api from "../../services/api";
 import { getUserId } from "../../services/auth";
@@ -62,12 +62,16 @@ const Romaneio = () => {
   const [placa, setPlaca] = useState("");
   const [docMot, setDocMot] = useState("");
   const [codBarra, setCodBarra] = useState("");
+  const [veiculo, setVeiculo] = useState("");
   const [nfs, setNfs] = useState([]);
   const [statusValues, setStatusValues] = useState([]);
+  const [tipoVeiculos, setTipoVeiculos] = useState([]);
   const [msg, setMsg] = useState({ color: "", message: "" });
   const [visible, setVisible] = useState(true);
   const [conferido, setConferido] = useState(false);
   const [embarcado, setEmbarcado] = useState(false);
+  const [criado, setCriado] = useState(false);
+  const [codRomaneio, setCodRomaneio] = useState("");
 
   const history = useHistory();
   const { id: RomaneioId } = useParams();
@@ -82,6 +86,9 @@ const Romaneio = () => {
   async function fetchData() {
     try {
       const status = await api.get("/status");
+      const veiculos = await api.get("/veiculos");
+
+      setTipoVeiculos(veiculos.data);
 
       setStatusValues(
         status.data.filter(
@@ -104,6 +111,9 @@ const Romaneio = () => {
         setNfs(response.data[0].nota_fiscal);
         setPlaca(response.data[0].PLACAVEICULO);
         setDocMot(response.data[0].DOCMOTORISTA);
+        setVeiculo(response.data[0].VEICULO);
+        setCriado(true);
+        setCodRomaneio(RomaneioId);
       }
     } catch (error) {
       console.log(error);
@@ -147,10 +157,10 @@ const Romaneio = () => {
 
   async function handleSave() {
     try {
-      if (!placa || !docMot || nfs.length === 0)
+      if (!placa || !docMot || !veiculo || veiculo === 0)
         return setMsgError("danger", "Campos obrigatórios em branco");
 
-      if (RomaneioId) {
+      if (codRomaneio) {
         if (conferido) {
           const requestData = {
             acao: "update",
@@ -158,32 +168,35 @@ const Romaneio = () => {
             docMotorista: docMot,
           };
 
-          await api.put(`romaneios/${RomaneioId}`, requestData);
+          await api.put(`romaneios/${codRomaneio}`, requestData);
         } else {
           const requestData = {
             acao: "update",
             placa: placa,
             docMotorista: docMot,
+            veiculo,
             nfs: nfs,
           };
 
-          await api.put(`romaneios/${RomaneioId}`, requestData);
+          await api.put(`romaneios/${codRomaneio}`, requestData);
         }
 
         setMsgError("success", "Romaneio alterado com sucesso !");
       } else {
-        await api.post("romaneios", {
+        const romaneio = await api.post("romaneios", {
           nfs: nfs,
           placa: placa,
           docMotorista: docMot,
+          veiculo,
           login: getUserId(),
         });
 
+        setCodRomaneio(romaneio.data.id);
+        setCriado(true);
         setMsgError("success", "Romaneio criado com sucesso !");
       }
-
-      history.push(`/romaneios`);
     } catch (error) {
+      console.log(error);
       setMsgError(
         "danger",
         error.response.data.error
@@ -202,6 +215,13 @@ const Romaneio = () => {
           </Alert>
         )}
         <Form>
+          {codRomaneio && (
+            <Row xs="2">
+              <Col>
+                <Header>Romaneio {codRomaneio}</Header>
+              </Col>
+            </Row>
+          )}
           <Row xs="2">
             <Col>
               <FormGroup>
@@ -243,8 +263,27 @@ const Romaneio = () => {
                   placeholder="Cód. Barras NF.."
                   value={codBarra}
                   onChange={(e) => handleLeitura(e.target.value)}
-                  disabled={conferido || embarcado}
+                  disabled={!criado || conferido || embarcado}
                 />
+              </FormGroup>
+            </Col>
+            <Col>
+              <FormGroup>
+                <Label for="veiculo">Veículo</Label>
+                <Input
+                  type="select"
+                  name="veiculo"
+                  id="veiculo"
+                  value={veiculo}
+                  onChange={(e) => setVeiculo(e.target.value)}
+                >
+                  <option value="0">Veículo..</option>
+                  {tipoVeiculos.map((veiculo, index) => (
+                    <option key={index} value={veiculo.id}>
+                      {veiculo.tipo}
+                    </option>
+                  ))}
+                </Input>
               </FormGroup>
             </Col>
           </Row>

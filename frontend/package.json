@@ -51,8 +51,7 @@
   },
   "devDependencies": {
     "commitizen": "^4.2.1",
-    "cz-emoji": "^1.2.2",
-    "eslint": "^5.16.0"
+    "cz-emoji": "^1.2.2"
   },
   "config": {
     "commitizen": {

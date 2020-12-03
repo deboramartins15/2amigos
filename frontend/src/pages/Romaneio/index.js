@@ -134,7 +134,9 @@ const Romaneio = () => {
       if (nf.data[0].ROMANEIO_ID)
         return setMsgError("danger", "Nota fiscal já pertence a um romaneio");
 
-      if (!nfs.includes(chave)) setNfs([...nfs, nf.data[0]]);
+      const exists = nfs.filter(nf => nf.CHAVE_NF === chave)
+
+      if (exists.length === 0) setNfs([...nfs, nf.data[0]]);
     } catch (error) {
       setMsgError(
         "danger",

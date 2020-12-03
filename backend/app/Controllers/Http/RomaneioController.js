@@ -242,6 +242,92 @@ class RomaneioController {
       return response.status(500).send(error.message);
     }
   }
+
+  async reenviaRelatorios({ params, response }) {
+    try {
+      if (!params.id)
+        return response.status(400).send({ error: "Informe o romaneio" });
+
+      const romaneio = await Romaneio.findOrFail(params.id);
+
+      const consolidado = await geraInfoManifestoConsolidado(params.id);
+
+      const destinatarios = await geraInfoManifestoDestinatario(params.id);
+
+      await criaPDFConsolidado(consolidado);
+      await criaPDFDestinatarios(destinatarios);
+
+      await Mail.send("welcome", romaneio.toJSON(), message => {
+        message
+          .to("david.ramos@2amigos.com.br")
+          .from("2amigostransportadora@gmail.com")
+          .subject("Relatório consolidado notas fiscais")
+          .attach(
+            path.join(
+              __dirname,
+              "..",
+              "..",
+              "..",
+              "tmp",
+              "exports",
+              "relConsolidado.pdf"
+            ),
+            {
+              filename: "Consolidado.pdf"
+            }
+          );
+      });
+
+      // fs.unlinkSync(
+      //   path.join(
+      //     __dirname,
+      //     "..",
+      //     "..",
+      //     "..",
+      //     "tmp",
+      //     "exports",
+      //     "relConsolidado.pdf"
+      //   )
+      // );
+
+      await Mail.send("welcome", romaneio.toJSON(), message => {
+        message
+          .to("david.ramos@2amigos.com.br")
+          .from("2amigostransportadora@gmail.com")
+          .subject("Relatório destinatários notas fiscais")
+          .attach(
+            path.join(
+              __dirname,
+              "..",
+              "..",
+              "..",
+              "tmp",
+              "exports",
+              "relDestinatario.pdf"
+            ),
+            {
+              filename: "Destinatarios.pdf"
+            }
+          );
+      });
+
+      // fs.unlinkSync(
+      //   path.join(
+      //     __dirname,
+      //     "..",
+      //     "..",
+      //     "..",
+      //     "tmp",
+      //     "exports",
+      //     "relDestinatario.pdf"
+      //   )
+      // );
+
+      return response.status(200).send(romaneio);
+    } catch (error) {
+      return response.status(error.status).send(error);
+    }
+  }
 }
 
 module.exports = RomaneioController;

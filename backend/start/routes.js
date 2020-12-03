@@ -33,3 +33,4 @@ Route.get("/leitura/romaneio/:id/:codBarra","RomaneioController.confereRomaneio"
 Route.post("/nf/export/csv","NotaFiscalController.exportToCSV").middleware("auth")
 Route.delete("/nf/export/csv/:filename","NotaFiscalController.deleteCSV").middleware("auth")
 Route.get("/status","StatusController.index").middleware("auth")
+Route.get("/romaneio/reenvio/email/:id","RomaneioController.reenviaRelatorios").middleware("auth")

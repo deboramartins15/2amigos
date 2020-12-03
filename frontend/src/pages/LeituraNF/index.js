@@ -94,17 +94,19 @@ function Leitura() {
       if (nf.status === 204) {
         setMsgError("warning", "Nota fiscal não importada !");
       } else {
-        if (nf.data.DT_RECEBIDO) {
-          return setMsgError("danger", "Nota fiscal já recebida");
+        if (nf.data[0].DT_RECEBIDO) {
+          setMsgError("danger", "Nota fiscal já recebida");
+          setCodBarra("");
+          return;
         }
-        
+
         const response = await api.put(`nf/${nf.data[0].id}`, {
           status: "Recebida",
           acao: "recebimento",
           login: getUserId(),
         });
 
-        if (response.status === 200) {        
+        if (response.status === 200) {
           setMsgError("success", "Nota fiscal recebida com sucesso !");
 
           const nfsFiltered = nfs.filter((nf) => nf.CHAVE_NF !== codigo.trim());
@@ -116,10 +118,9 @@ function Leitura() {
     } catch (error) {
       setMsgError(
         "danger",
-        error.response.data.error
-          ? error.response.data.error
-          : error.response.data.detail
+        error.response ? error.response.data.error : error.response.data.detail
       );
+      setCodBarra("");
     }
   };
 

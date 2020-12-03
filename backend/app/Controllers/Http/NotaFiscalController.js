@@ -152,7 +152,13 @@ class NotaFiscalController {
 
   async findByCodBarra({ params, response }) {
     try {
-      return await NotaFiscal.query().where("CHAVE_NF", "=" ,params.codBarra).with("status").fetch();
+      const nf = await NotaFiscal.query().where("CHAVE_NF", "=" ,params.codBarra).with("status").fetch();
+      
+      if(nf.toJSON().length === 0){
+        return response.status(400).send({error: 'Nota fiscal não importada!'})
+      }
+
+      return nf
     } catch (error) {
       return response.status(500).send(error);
     }

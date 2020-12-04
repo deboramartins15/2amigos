@@ -10,6 +10,7 @@ import Leitura from "./pages/LeituraNF";
 import Romaneios from "./pages/Romaneios/index.js";
 import Romaneio from "./pages/Romaneio/index.js";
 import LeituraRomaneio from "./pages/LeituraRomaneio/index.js";
+import Motorista from "./pages/Motorista/index.js";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/romaneio/leitura/:id" component={LeituraRomaneio}></Route>
           <Route path="/romaneio/:id" component={Romaneio}></Route>
           <Route path="/romaneio" component={Romaneio}></Route>
+          <Route path="/motoristas" component={Motorista}></Route>
         </Switch>
       </BrowserRouter>
       <GlobalStyles />

@@ -5,6 +5,7 @@ const Mail = use("Mail");
 const NotaFiscal = use("App/Models/NotaFiscal");
 const Romaneio = use("App/Models/Romaneio");
 const Status = use("App/Models/Status");
+const Motorista = use("App/Models/Motorista");
 
 const path = require("path");
 const fs = require("fs");
@@ -22,6 +23,7 @@ class RomaneioController {
       return Romaneio.query()
         .with("nota_fiscal")
         .with("status")
+        .with("motorista")
         .fetch();
     } catch (error) {
       return response.status(500).send(error.message);
@@ -37,6 +39,7 @@ class RomaneioController {
         .where("id", "=", params.id)
         .with("nota_fiscal.status")
         .with("status")
+        .with("motorista")
         .fetch();
 
       return romaneio;
@@ -50,7 +53,7 @@ class RomaneioController {
       const dataRequest = request.only([
         "nfs",
         "placa",
-        "docMotorista",
+        "motorista",
         "veiculo",
         "login"
       ]);
@@ -59,7 +62,7 @@ class RomaneioController {
 
       const data = {
         PLACAVEICULO: dataRequest.placa,
-        DOCMOTORISTA: dataRequest.docMotorista,
+        MOTORISTA: dataRequest.motorista,
         USER_CRIACAO: dataRequest.login,
         VEICULO: dataRequest.veiculo,
         STATUS_ID: statusPendente.id
@@ -68,7 +71,7 @@ class RomaneioController {
       const romaneio = await Romaneio.create(data);
 
       dataRequest.nfs.map(async nf => {
-        const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
+        const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);        
         NF.merge({ ROMANEIO_ID: romaneio.id });
         NF.save();
       });
@@ -86,7 +89,7 @@ class RomaneioController {
         "acao",
         "login",
         "placa",
-        "docMotorista",
+        "motorista",
         "veiculo",
         "nfs"
       ]);
@@ -107,7 +110,7 @@ class RomaneioController {
               USER_CONFERIDO: data.login,
               DT_CONFERIDO: new Date().toLocaleString("pt-br"),
               PLACAVEICULO: data.placa,
-              DOCMOTORISTA: data.docMotorista
+              MOTORISTA: data.motorista
             };
             break;
           case "expedicao":
@@ -121,7 +124,7 @@ class RomaneioController {
       } else {
         newData = {
           PLACAVEICULO: data.placa,
-          DOCMOTORISTA: data.docMotorista,
+          MOTORISTA: data.motorista,
           VEICULO: data.veiculo
         };
 
@@ -150,7 +153,7 @@ class RomaneioController {
           message
             .to("david.ramos@2amigos.com.br")
             .from("2amigostransportadora@gmail.com")
-            .subject("Relatório consolidado notas fiscais")
+            .subject("Embarque 2 Amigos")
             .attach(
               path.join(
                 __dirname,
@@ -162,55 +165,48 @@ class RomaneioController {
                 "relConsolidado.pdf"
               ),
               {
-                filename: "Consolidado.pdf"
+                filename: "Embarque2Amigos.pdf"
               }
             );
         });
 
-        // fs.unlinkSync(
-        //   path.join(
-        //     __dirname,
-        //     "..",
-        //     "..",
-        //     "..",
-        //     "tmp",
-        //     "exports",
-        //     "relConsolidado.pdf"
-        //   )
-        // );
+        fs.unlinkSync(
+          path.join(
+            __dirname,
+            "..",
+            "..",
+            "..",
+            "tmp",
+            "exports",
+            "relConsolidado.pdf"
+          )
+        );
 
-        await Mail.send("welcome", romaneio.toJSON(), message => {
-          message
-            .to("david.ramos@2amigos.com.br")
-            .from("2amigostransportadora@gmail.com")
-            .subject("Relatório destinatários notas fiscais")
-            .attach(
-              path.join(
-                __dirname,
-                "..",
-                "..",
-                "..",
-                "tmp",
-                "exports",
-                "relDestinatario.pdf"
-              ),
-              {
-                filename: "Destinatarios.pdf"
-              }
-            );
+        const anexos = Object.keys(destinatarios.nfs).map(nf =>
+          path.join(
+            __dirname,
+            "..",
+            "..",
+            "..",
+            "tmp",
+            "exports",
+            `relEmbarque-${nf}.pdf`
+          )
+        );
+
+        anexos.map(async anexo => {
+          await Mail.send("welcome", romaneio.toJSON(), message => {
+            message
+              .to("david.ramos@2amigos.com.br")
+              .from("2amigostransportadora@gmail.com")
+              .subject("Manifesto 2 Amigos")
+              .attach(anexo, {
+                filename: `Manifesto2Amigos.pdf`
+              });
+          });
+
+          fs.unlinkSync(anexo);
         });
-
-        // fs.unlinkSync(
-        //   path.join(
-        //     __dirname,
-        //     "..",
-        //     "..",
-        //     "..",
-        //     "tmp",
-        //     "exports",
-        //     "relDestinatario.pdf"
-        //   )
-        // );
       }
 
       return response.status(200).send(romaneio);
@@ -261,7 +257,7 @@ class RomaneioController {
         message
           .to("david.ramos@2amigos.com.br")
           .from("2amigostransportadora@gmail.com")
-          .subject("Relatório consolidado notas fiscais")
+          .subject("Embarque 2 Amigos")
           .attach(
             path.join(
               __dirname,
@@ -273,55 +269,48 @@ class RomaneioController {
               "relConsolidado.pdf"
             ),
             {
-              filename: "Consolidado.pdf"
+              filename: "Embarque2Amigos.pdf"
             }
           );
       });
 
-      // fs.unlinkSync(
-      //   path.join(
-      //     __dirname,
-      //     "..",
-      //     "..",
-      //     "..",
-      //     "tmp",
-      //     "exports",
-      //     "relConsolidado.pdf"
-      //   )
-      // );
+      fs.unlinkSync(
+        path.join(
+          __dirname,
+          "..",
+          "..",
+          "..",
+          "tmp",
+          "exports",
+          "relConsolidado.pdf"
+        )
+      );
 
-      await Mail.send("welcome", romaneio.toJSON(), message => {
-        message
-          .to("david.ramos@2amigos.com.br")
-          .from("2amigostransportadora@gmail.com")
-          .subject("Relatório destinatários notas fiscais")
-          .attach(
-            path.join(
-              __dirname,
-              "..",
-              "..",
-              "..",
-              "tmp",
-              "exports",
-              "relDestinatario.pdf"
-            ),
-            {
-              filename: "Destinatarios.pdf"
-            }
-          );
+      const anexos = Object.keys(destinatarios.nfs).map(nf =>
+        path.join(
+          __dirname,
+          "..",
+          "..",
+          "..",
+          "tmp",
+          "exports",
+          `relEmbarque-${nf}.pdf`
+        )
+      );
+
+      anexos.map(async anexo => {
+        await Mail.send("welcome", romaneio.toJSON(), message => {
+          message
+            .to("david.ramos@2amigos.com.br")
+            .from("2amigostransportadora@gmail.com")
+            .subject("Manifesto 2 Amigos")
+            .attach(anexo, {
+              filename: `Manifesto2Amigos.pdf`
+            });
+        });
+
+        fs.unlinkSync(anexo);
       });
-
-      // fs.unlinkSync(
-      //   path.join(
-      //     __dirname,
-      //     "..",
-      //     "..",
-      //     "..",
-      //     "tmp",
-      //     "exports",
-      //     "relDestinatario.pdf"
-      //   )
-      // );
 
       return response.status(200).send(romaneio);
     } catch (error) {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import { useParams } from "react-router-dom";
 import PageDefault from "../Default";
 
@@ -60,12 +60,13 @@ const columnsNF = [
 
 const Romaneio = () => {
   const [placa, setPlaca] = useState("");
-  const [docMot, setDocMot] = useState("");
   const [codBarra, setCodBarra] = useState("");
   const [veiculo, setVeiculo] = useState("");
+  const [motorista, setMotorista] = useState("");
   const [nfs, setNfs] = useState([]);
   const [statusValues, setStatusValues] = useState([]);
   const [tipoVeiculos, setTipoVeiculos] = useState([]);
+  const [motoristas, setMotoristas] = useState([]);
   const [msg, setMsg] = useState({ color: "", message: "" });
   const [visible, setVisible] = useState(true);
   const [conferido, setConferido] = useState(false);
@@ -87,8 +88,10 @@ const Romaneio = () => {
     try {
       const status = await api.get("/status");
       const veiculos = await api.get("/veiculos");
+      const motoristas = await api.get("/motoristas");
 
       setTipoVeiculos(veiculos.data);
+      setMotoristas(motoristas.data);
 
       setStatusValues(
         status.data.filter(
@@ -110,7 +113,7 @@ const Romaneio = () => {
 
         setNfs(response.data[0].nota_fiscal);
         setPlaca(response.data[0].PLACAVEICULO);
-        setDocMot(response.data[0].DOCMOTORISTA);
+        setMotorista(response.data[0].MOTORISTA);
         setVeiculo(response.data[0].VEICULO);
         setCriado(true);
         setCodRomaneio(RomaneioId);
@@ -124,9 +127,16 @@ const Romaneio = () => {
     fetchData();
   }, []);
 
-  async function handleLeitura(chave) {
+  const handleLeitura = async (chave) => {
     try {
-      const nf = await api.get(`/leitura/${chave}`);
+      setCodBarra(chave.trim());
+
+      if (!chave) {
+        setMsgError("danger", "Informe o código de barra da NF !");
+        return;
+      }
+
+      const nf = await api.get(`/leitura/${chave.trim()}`);
 
       if (nf.data[0].status[0].descricao !== "Recebida")
         return setMsgError("danger", "Nota fiscal não recebida");
@@ -134,16 +144,19 @@ const Romaneio = () => {
       if (nf.data[0].ROMANEIO_ID)
         return setMsgError("danger", "Nota fiscal já pertence a um romaneio");
 
-      const exists = nfs.filter(nf => nf.CHAVE_NF === chave)
+      const exists = nfs.filter((nf) => nf.CHAVE_NF === chave.trim());
 
       if (exists.length === 0) setNfs([...nfs, nf.data[0]]);
+      setCodBarra("");
     } catch (error) {
       setMsgError(
         "danger",
         error.response.data ? error.response.data.error : error.response
       );
+
+      setCodBarra("");
     }
-  }
+  };
 
   function handleDeleteNf(e, id) {
     e.preventDefault();
@@ -159,7 +172,7 @@ const Romaneio = () => {
 
   async function handleSave() {
     try {
-      if (!placa || !docMot || !veiculo || veiculo === 0)
+      if (!placa || !motorista || !veiculo || veiculo === 0)
         return setMsgError("danger", "Campos obrigatórios em branco");
 
       if (codRomaneio) {
@@ -167,7 +180,7 @@ const Romaneio = () => {
           const requestData = {
             acao: "update",
             placa: placa,
-            docMotorista: docMot,
+            motorista: motorista,
           };
 
           await api.put(`romaneios/${codRomaneio}`, requestData);
@@ -175,7 +188,7 @@ const Romaneio = () => {
           const requestData = {
             acao: "update",
             placa: placa,
-            docMotorista: docMot,
+            motorista: motorista,
             veiculo,
             nfs: nfs,
           };
@@ -188,7 +201,7 @@ const Romaneio = () => {
         const romaneio = await api.post("romaneios", {
           nfs: nfs,
           placa: placa,
-          docMotorista: docMot,
+          motorista: motorista,
           veiculo,
           login: getUserId(),
         });
@@ -243,14 +256,19 @@ const Romaneio = () => {
               <FormGroup>
                 <Label for="docMotorista">Doc. Motorista</Label>
                 <Input
-                  type="text"
-                  name="docMotorista"
-                  id="docMotorista"
-                  placeholder="Doc. Motorista.."
-                  value={docMot}
-                  onChange={(e) => setDocMot(e.target.value)}
-                  disabled={embarcado}
-                />
+                  type="select"
+                  name="motorista"
+                  id="motorista"
+                  value={motorista}
+                  onChange={(e) => setMotorista(e.target.value)}
+                >
+                  <option value="0">Motorista..</option>
+                  {motoristas.map((motorista, index) => (
+                    <option key={index} value={motorista.id}>
+                      {motorista.NOME}
+                    </option>
+                  ))}
+                </Input>
               </FormGroup>
             </Col>
           </Row>

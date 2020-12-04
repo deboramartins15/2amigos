@@ -49,7 +49,7 @@ class TabelaPaginacao extends React.Component {
       visible: true,
       msgErroExportacao: null,
       corMsgExportacao: "info",
-      nomeArquivoExportacao: null
+      nomeArquivoExportacao: null,
     };
 
     this.onPesquisar = this.onPesquisar.bind(this);
@@ -68,7 +68,7 @@ class TabelaPaginacao extends React.Component {
     var { registrosPorPagina, fonteDeDados } = this.props;
     var { itensPesquisa, itensOrdenados } = this.state;
     var listaDeRegistros = [];
-    
+
     if (dadosParaPaginar) {
       listaDeRegistros = dadosParaPaginar;
     } else {
@@ -177,11 +177,16 @@ class TabelaPaginacao extends React.Component {
     ) {
       listagem = this.props.fonteDeDados.filter((x) => {
         if (textoPesquisaMinimizado === "sim") {
-          console.log("entrou");
           return x[this.state.colunaParaPesquisar] === true;
         } else if (textoPesquisaMinimizado === "não") {
           return x[this.state.colunaParaPesquisar] === false;
         } else return x;
+      });
+    } else if (this.state.colunaParaPesquisar === "motorista") {
+      listagem = this.props.fonteDeDados.filter((x) => {
+        return x["motorista"].NOME.toString()
+          .toLowerCase()
+          .includes(textoPesquisaMinimizado);
       });
     } else {
       const statusValue =
@@ -372,16 +377,16 @@ class TabelaPaginacao extends React.Component {
           msgErroExportacao: "Nenhum dado para exportar",
         });
 
-        return
+        return;
       }
 
       const response = await api.post("/nf/export/csv", { data: fonteDados });
-      
+
       this.setState({
         ...this.state,
         arquivoExportacao: response.data.filepath,
         visible: true,
-        nomeArquivoExportacao: response.data.filename
+        nomeArquivoExportacao: response.data.filename,
       });
     } catch (error) {
       this.setState({
@@ -549,6 +554,8 @@ class TabelaPaginacao extends React.Component {
                               {linha[coluna] === true ? "Sim" : "Não"}
                             </td>
                           );
+                        case "motorista":
+                          return <td key={coluna}>{linha[coluna].NOME}</td>;
                         case "status":
                           return (
                             <td key={coluna}>{linha[coluna][0].descricao}</td>

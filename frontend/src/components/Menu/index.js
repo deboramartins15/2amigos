@@ -42,6 +42,11 @@ function Menu(props) {
             <Link to="/romaneios">Romaneios</Link>
           </MenuItem>
         )}
+        {showMenuItem && (
+          <MenuItem>
+            <Link to="/motoristas">Motoristas</Link>
+          </MenuItem>
+        )}
         <MenuItem>
           <Link to="/" onClick={handleSignOut}>
             Sair

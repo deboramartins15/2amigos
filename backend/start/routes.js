@@ -27,6 +27,7 @@ Route.resource("loja", "LojaController").apiOnly().middleware("auth");
 Route.resource("nf", "NotaFiscalController").apiOnly().middleware("auth");
 Route.resource("romaneios", "RomaneioController").apiOnly().middleware("auth");
 Route.resource("veiculos", "TipoVeiculoController").apiOnly().middleware("auth");
+Route.resource("motoristas", "MotoristaController").apiOnly().middleware("auth");
 
 Route.get("/leitura/:codBarra","NotaFiscalController.findByCodBarra").middleware("auth")
 Route.get("/leitura/romaneio/:id/:codBarra","RomaneioController.confereRomaneio").middleware("auth")

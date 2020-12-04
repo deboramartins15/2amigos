@@ -15,12 +15,12 @@ const columnsRomaneio = [
     name: "Placa veículo",
   },
   {
-    prop: "DOCMOTORISTA",
-    name: "Doc. Motorista",
-  },
-  {
     prop: "status",
     name: "Status",
+  },
+  {
+    prop: "motorista",
+    name: "Motorista",
   },
 ];
 

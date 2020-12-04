@@ -19,6 +19,10 @@ class Romaneio extends Model {
   veiculo(){
     return this.hasOne("App/Models/TipoVeiculo", "id", "VEICULO")
   }
+
+  motorista(){
+    return this.hasOne("App/Models/Motorista", "MOTORISTA", "id")
+  }
 }
 
 module.exports = Romaneio;

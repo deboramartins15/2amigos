@@ -34,51 +34,6 @@ function parseXmlToJson(xml) {
   }
 }
 
-function geraTableDestinatarios(destinatarios) {
-  let temp = Object.keys(destinatarios.nfs).map(nf => {
-    return `
-      <div>
-        <p>${nf}</p>
-        <table>
-          <tr>
-            <th>CNPJ</th>
-            <th>Número</th>
-            <th>Volume</th>
-            <th>Peso</th>
-            <th>Valor</th>
-          </tr>
-          ${destinatarios.nfs[nf].map(n => {
-            return `<tr>
-            <td>${n.CNPJ_FAVORECIDO}</td>
-            <td>${n.NUMERO_NF}</td>
-            <td>${n.VOLUME}</td>
-            <td>${n.PESO_BRUTO}</td>
-            <td>${n.TOTAL_NF}</td>
-          </tr>`;
-          })}
-          <tfooter>
-          <tr>
-            <td>Totais:</td>
-            <td>${destinatarios.nfs[nf].totais.QtdNfs}</td>            
-            <td>${destinatarios.nfs[nf].totais.totalVolume}</td> 
-            <td></td>           
-            <td>${destinatarios.nfs[nf].totais.totalNf}</td>
-          </tr>
-        </tfooter>
-        </table>
-      </div>
-    `;
-  });
-
-  temp = temp.join("");
-
-  while (temp.indexOf(",") >= 0) {
-    temp = temp.replace(",", " ");
-  }
-
-  return temp;
-}
-
 /**
  *
  * EXPORTED FUNCTION
@@ -114,9 +69,10 @@ async function getJsonFromXML(xml) {
 
 async function geraInfoManifestoConsolidado(romaneioId) {
   const romaneio = await Romaneio.find(romaneioId);
+  romaneio.load("motorista")
 
   const nfs = await NotaFiscal.query()
-    .where("ROMANEIO_ID", "=", romaneioId)
+    .where("ROMANEIO_ID", "=", romaneioId)    
     .fetch();
 
   const nfsJSON = nfs.toJSON();
@@ -140,6 +96,7 @@ async function geraInfoManifestoConsolidado(romaneioId) {
 
 async function geraInfoManifestoDestinatario(romaneioId) {
   const romaneio = await Romaneio.find(romaneioId);
+  romaneio.load("motorista")
 
   const nfs = await NotaFiscal.query()
     .where("ROMANEIO_ID", "=", romaneioId)
@@ -252,11 +209,11 @@ async function criaPDFConsolidado(consolidado) {
         "tmp",
         "logo-2amigos.jpeg"
       )} alt="logo" />
-      <h1 class="title">Relatório Consolidado</h1>
+      <h1 class="title">Embarque 2 Amigos</h1>
       <p>
         <strong>Romaneio:</strong> ${consolidado.romaneio.id}
         <strong>Placa do veículo:</strong> ${consolidado.romaneio.PLACAVEICULO}
-        <strong>Doc. Motorista:</strong> ${consolidado.romaneio.DOCMOTORISTA}
+        <strong>Motorista:</strong> ${consolidado.romaneio.motorista.NOME}
       </p>
       <table style="width: 100%">
         <tr>
@@ -324,9 +281,8 @@ async function criaPDFConsolidado(consolidado) {
 }
 
 async function criaPDFDestinatarios(destinatarios) {
-  const tables = geraTableDestinatarios(destinatarios);
-
-  const html = `
+  Object.keys(destinatarios.nfs).map(nf => {
+    const html =`
     <html>
     <head></head>
     <style>
@@ -376,52 +332,83 @@ async function criaPDFDestinatarios(destinatarios) {
         text-align: center;
       }
     </style>
-    <body>
-      <img src=${path.join(
-        "file://",
-        __dirname,
-        "..",
-        "..",
-        "tmp",
-        "logo-2amigos.jpeg"
-      )} alt="logo" />      
-      <h1 class="title">Relatório Destinatários</h1>
-      <p>
-        <strong>Romaneio:</strong> ${destinatarios.romaneio.id}
-        <strong>Placa do veículo:</strong> ${
-          destinatarios.romaneio.PLACAVEICULO
-        }
-        <strong>Doc. Motorista:</strong> ${destinatarios.romaneio.DOCMOTORISTA}
-      </p>
-      ${tables.replace(",", " ")}
-      <div class="assinatura-content">
-        <div class="assinatura-content-left">
-          <span>_______________________________</span>
-          <span> Assinatura motorista</span>
+      <body>
+        <img src=${path.join(
+          "file://",
+          __dirname,
+          "..",
+          "..",
+          "tmp",
+          "logo-2amigos.jpeg"
+        )} alt="logo" />      
+        <h1 class="title">Manifesto 2 Amigos</h1>
+        <p>
+          <strong>Romaneio:</strong> ${destinatarios.romaneio.id}
+          <strong>Placa do veículo:</strong> ${
+            destinatarios.romaneio.PLACAVEICULO
+          }
+          <strong>Motorista:</strong> ${destinatarios.romaneio.motorista.NOME}
+        </p>
+        <div>
+        <p>${nf}</p>
+        <table>
+            <tr>
+              <th>CNPJ</th>
+              <th>Número</th>
+              <th>Volume</th>
+              <th>Peso</th>
+              <th>Valor</th>
+            </tr>
+            ${destinatarios.nfs[nf].map(n => {
+              return `<tr>
+              <td>${n.CNPJ_FAVORECIDO}</td>
+              <td>${n.NUMERO_NF}</td>
+              <td>${n.VOLUME}</td>
+              <td>${n.PESO_BRUTO}</td>
+              <td>${n.TOTAL_NF}</td>
+            </tr>`;
+            })}
+            <tfooter>
+            <tr>
+              <td>Totais:</td>
+              <td>${destinatarios.nfs[nf].totais.QtdNfs}</td>            
+              <td>${destinatarios.nfs[nf].totais.totalVolume}</td> 
+              <td></td>           
+              <td>${destinatarios.nfs[nf].totais.totalNf}</td>
+            </tr>
+          </tfooter>
+          </table>
+          </div>
+          <div class="assinatura-content">
+          <div class="assinatura-content-left">
+            <span>_______________________________</span>
+            <span> Assinatura recebedor</span>
+          </div>
+          <div class="assinatura-content-right">
+            <span>_______________________________</span>
+            <span> Número de identificação</span>
+          </div>
         </div>
-        <div class="assinatura-content-right">
-          <span>_______________________________</span>
-          <span> Número de identificação</span>
-        </div>
-      </div>
-      <p class="impressao">Impresso em ${new Date().toLocaleDateString(
-        "pt-BR"
-      )}</p>
-    </body>
-  </html>
-  `;
-  const filepath = path.join(
-    __dirname,
-    "..",
-    "..",
-    "tmp",
-    "exports",
-    "relDestinatario.pdf"
-  );
-
-  pdf.create(html).toFile(filepath, (err, res) => {
-    if (err) console.log(err);
-  });
+        <p class="impressao">Impresso em ${new Date().toLocaleDateString(
+          "pt-BR"
+        )}</p>
+      </body>
+    </html>
+    `
+    const filepath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "tmp",
+      "exports",
+      `relEmbarque-${nf}.pdf`
+    );
+  
+    pdf.create(html).toFile(filepath, (err, res) => {
+      if (err) console.log(err);
+    });
+  })
+  
 }
 
 module.exports = {

@@ -152,6 +152,10 @@ class NotaFiscalController {
 
   async findByCodBarra({ params, response }) {
     try {
+      if(!params.codBarra){
+        return response.status(400).send({error: "Informe o código de barra!"})
+      }
+      
       const nf = await NotaFiscal.query().where("CHAVE_NF", "=" ,params.codBarra).with("status").fetch();
       
       if(nf.toJSON().length === 0){

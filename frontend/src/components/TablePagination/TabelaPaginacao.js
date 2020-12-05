@@ -50,6 +50,8 @@ class TabelaPaginacao extends React.Component {
       msgErroExportacao: null,
       corMsgExportacao: "info",
       nomeArquivoExportacao: null,
+      dataInicialBusca: "",
+      dataFinalBusca: "",
     };
 
     this.onPesquisar = this.onPesquisar.bind(this);
@@ -380,14 +382,8 @@ class TabelaPaginacao extends React.Component {
         return;
       }
 
-      const response = await api.post("/nf/export/csv", { data: fonteDados });
-
-      this.setState({
-        ...this.state,
-        arquivoExportacao: response.data.filepath,
-        visible: true,
-        nomeArquivoExportacao: response.data.filename,
-      });
+      await api.post("/nf/export/csv", { data: fonteDados });
+      window.open(`${process.env.REACT_APP_API_URL}/download`);
     } catch (error) {
       this.setState({
         ...this.state,
@@ -423,7 +419,7 @@ class TabelaPaginacao extends React.Component {
       <div className="table-container">
         <Form inline>
           <Row className="mb-2">
-            <Col>
+            <Col xs="auto">
               <Input
                 style={{ padding: "10" }}
                 type="text"
@@ -431,7 +427,7 @@ class TabelaPaginacao extends React.Component {
                 onChange={(e) => this.onPesquisar(e.target.value)}
               />
             </Col>
-            <Col>
+            <Col xs="auto">
               <select
                 style={{ marginLeft: 10 }}
                 className={`custom-select form-control`}
@@ -454,7 +450,7 @@ class TabelaPaginacao extends React.Component {
               </select>
             </Col>
             {filterStatus && (
-              <Col>
+              <Col xs="auto">
                 <select
                   style={{ marginLeft: 10 }}
                   className={`custom-select form-control`}
@@ -475,7 +471,7 @@ class TabelaPaginacao extends React.Component {
             )}
             {exportData && (
               <Col>
-                <Button onClick={this.handleExportacao}>Exportar dados</Button>
+                <Button style={{ width: "135px" }} onClick={this.handleExportacao}>Exportar dados</Button>
               </Col>
             )}
             {(arquivoExportacao || msgErroExportacao) && (
@@ -484,18 +480,7 @@ class TabelaPaginacao extends React.Component {
                 isOpen={this.state.visible}
                 toggle={this.onDismiss}
               >
-                {msgErroExportacao ? (
-                  <span>{msgErroExportacao}</span>
-                ) : (
-                  <a
-                    href={`file:///${arquivoExportacao}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ alignSelf: "center" }}
-                  >
-                    Baixar arquivo
-                  </a>
-                )}
+                {msgErroExportacao && <span>{msgErroExportacao}</span>}
               </Alert>
             )}
           </Row>

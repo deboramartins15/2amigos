@@ -169,7 +169,7 @@ class NotaFiscalController {
   }
 
   async exportToCSV({ request, response }) {
-    try {
+    try {      
       const nfs = request.only(["data"]);
 
       const fields = [
@@ -202,26 +202,14 @@ class NotaFiscalController {
         const filename = `2amigos-notasfiscais${dataArquivo}.csv`;
 
         if (csv) {
-          fs.writeFile(
+          fs.writeFileSync(
             path.join(__dirname, "..", "..", "..", "tmp", "exports", filename),
             csv,
             function(err) {
-              if (err) throw err;
+              if (err) throw err;              
             }
           );
-
-          return response.status(200).send({
-            filepath: path.join(
-              __dirname,
-              "..",
-              "..",
-              "..",
-              "tmp",
-              "exports",
-              filename
-            ),
-            filename
-          });
+          return response.status(200).send()
         }
 
         return response.status(400).send({ message: "Erro ao exportar dados" });

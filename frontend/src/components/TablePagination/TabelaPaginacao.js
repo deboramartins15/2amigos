@@ -166,6 +166,34 @@ class TabelaPaginacao extends React.Component {
     this.setPage(this.props.paginaInicial, listagem);
   }
 
+  handleFilterDate(tipo, data) {
+    switch (tipo) {
+      case "INICIAL":
+        this.setState({ ...this.state, dataInicialBusca: data });
+        break;
+      case "FINAL":
+        this.setState({ ...this.state, dataFinalBusca: data });
+        break;
+    }
+    // SE DATA INICIAL NULA E DATA FINAL PREENCHIDA, ERRO PEDINDO PRA INFORMAR DATA INICIAL
+    if (!this.state.dataInicialBusca) return;
+    // SE DATA FINAL NULA E DATA INICIAL PREENCHIDA, ERRO PEDINDO PRA INFORMAR DATA FINAL
+    if (!this.state.dataFinalBusca) return;
+    // SE DATA INICIAL MAIOR QUE DATA FINAL, ERRO PEDINDO PRA INFORMAR UMA DATA VÁLIDA
+    if (
+      new Date(this.state.dataInicialBusca) >
+      new Date(this.state.dataFinalBusca)
+    )
+      return;
+
+    const listagem = this.props.fonteDeDados.filter((nf) => {
+      return new Date(nf["DT_EMISSAO"]) >= new Date(this.state.dataInicialBusca) && new Date(nf["DT_EMISSAO"])  <= new Date(this.state.dataFinalBusca)
+    });
+
+    this.setState({ itensPesquisa: listagem });
+    this.setPage(this.props.paginaInicial, listagem);
+  }
+
   onPesquisar(texto) {
     const textoPesquisaMinimizado = texto.toLowerCase();
     this.setState({ textoParaPesquisar: texto });
@@ -412,6 +440,7 @@ class TabelaPaginacao extends React.Component {
       filterStatus,
       StatusValues,
       exportData,
+      filterDate,
     } = this.props;
     var existeAcoes = acoes && acoes.length > 0;
 
@@ -469,9 +498,36 @@ class TabelaPaginacao extends React.Component {
                 </select>
               </Col>
             )}
+            {filterDate && (
+              <>
+                <Col xs="auto">
+                  <Input
+                    style={{ width: "170px" }}
+                    type="date"
+                    onChange={(e) =>
+                      this.handleFilterDate("INICIAL", e.target.value)
+                    }
+                  />
+                </Col>
+                <Col xs="auto">
+                  <Input
+                    style={{ width: "170px" }}
+                    type="date"
+                    onChange={(e) =>
+                      this.handleFilterDate("FINAL", e.target.value)
+                    }
+                  />
+                </Col>
+              </>
+            )}
             {exportData && (
               <Col>
-                <Button style={{ width: "135px" }} onClick={this.handleExportacao}>Exportar dados</Button>
+                <Button
+                  style={{ width: "135px" }}
+                  onClick={this.handleExportacao}
+                >
+                  Exportar dados
+                </Button>
               </Col>
             )}
             {(arquivoExportacao || msgErroExportacao) && (

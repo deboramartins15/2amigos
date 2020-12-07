@@ -230,6 +230,7 @@ const LeituraRomaneio = () => {
           filterStatus={true}
           StatusValues={statusValues}
           exportData={true}
+          filterDate={true}
         />
 
         <Row className="row-buttons">

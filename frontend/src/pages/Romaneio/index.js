@@ -319,6 +319,7 @@ const Romaneio = () => {
           footerTitulo={"Total NF:"}
           exportData={false}
           filterStatus={true}
+          filterDate={true}
           StatusValues={statusValues}
           acoes={[
             { nome: "Excluir", click: handleDeleteNf, class: "btn btn-danger" },

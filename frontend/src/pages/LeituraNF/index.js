@@ -168,6 +168,7 @@ function Leitura() {
             colunas={[...columnsNF]}
             footerTitulo={"Total usuários:"}
             exportData={true}
+            filterDate={true}
           />
         </TableWrapper>
       </Wrapper>

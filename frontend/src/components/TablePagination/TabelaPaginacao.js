@@ -166,52 +166,77 @@ class TabelaPaginacao extends React.Component {
     this.setPage(this.props.paginaInicial, listagem);
   }
 
-  onPesquisar(texto) {
-    const textoPesquisaMinimizado = texto.toLowerCase();
-    this.setState({ textoParaPesquisar: texto });
-    let listagem;
+  handleFilterDate(tipo, data) {
+    switch (tipo) {
+      case "INICIAL":
+        this.setState({ ...this.state, dataInicialBusca: data });
+        break;
+      case "FINAL":
+        this.setState({ ...this.state, dataFinalBusca: data });
+        break;
+    }
+  }
 
-    if (this.state.colunaParaPesquisar === "selecionar") return;
+  onPesquisar() {
+    const textoPesquisaMinimizado = this.state.textoParaPesquisar.toLowerCase();
+    let listagem = this.props.fonteDeDados;
 
-    if (
-      this.state.colunaParaPesquisar === "matriz" ||
-      this.state.colunaParaPesquisar === "transportadora"
-    ) {
-      listagem = this.props.fonteDeDados.filter((x) => {
-        if (textoPesquisaMinimizado === "sim") {
-          return x[this.state.colunaParaPesquisar] === true;
-        } else if (textoPesquisaMinimizado === "não") {
-          return x[this.state.colunaParaPesquisar] === false;
-        } else return x;
-      });
-    } else if (this.state.colunaParaPesquisar === "motorista") {
-      listagem = this.props.fonteDeDados.filter((x) => {
-        return x["motorista"].NOME.toString()
-          .toLowerCase()
-          .includes(textoPesquisaMinimizado);
-      });
-    } else {
-      const statusValue =
-        parseInt(this.state.statusParaPesquisar) === 0
-          ? null
-          : this.state.statusParaPesquisar;
-
-      listagem = this.props.fonteDeDados.filter((x) => {
-        if (statusValue) {
+    if (this.state.dataInicialBusca && this.state.dataFinalBusca) {
+      if (
+        new Date(this.state.dataInicialBusca) <=
+        new Date(this.state.dataFinalBusca)
+      ) {
+        listagem = listagem.filter((nf) => {
           return (
-            x[this.state.colunaParaPesquisar]
-              .toString()
-              .toLowerCase()
-              .includes(textoPesquisaMinimizado) &&
-            x["STATUS_ID"] === parseInt(statusValue)
+            new Date(nf['DT_EMISSAO']) >=
+              new Date(this.state.dataInicialBusca) &&
+            new Date(nf['DT_EMISSAO']) <= new Date(this.state.dataFinalBusca)
           );
-        } else {
-          return x[this.state.colunaParaPesquisar]
-            .toString()
+        });
+      }
+    }
+
+    if (this.state.colunaParaPesquisar !== "selecionar") {
+      if (
+        this.state.colunaParaPesquisar === "matriz" ||
+        this.state.colunaParaPesquisar === "transportadora"
+      ) {
+        listagem = listagem.filter((x) => {
+          if (textoPesquisaMinimizado === "sim") {
+            return x[this.state.colunaParaPesquisar] === true;
+          } else if (textoPesquisaMinimizado === "não") {
+            return x[this.state.colunaParaPesquisar] === false;
+          } else return x;
+        });
+      } else if (this.state.colunaParaPesquisar === "motorista") {
+        listagem = listagem.filter((x) => {
+          return x["motorista"].NOME.toString()
             .toLowerCase()
             .includes(textoPesquisaMinimizado);
-        }
-      });
+        });
+      } else {
+        const statusValue =
+          parseInt(this.state.statusParaPesquisar) === 0
+            ? null
+            : this.state.statusParaPesquisar;
+
+        listagem = listagem.filter((x) => {
+          if (statusValue) {
+            return (
+              x[this.state.colunaParaPesquisar]
+                .toString()
+                .toLowerCase()
+                .includes(textoPesquisaMinimizado) &&
+              x["STATUS_ID"] === parseInt(statusValue)
+            );
+          } else {
+            return x[this.state.colunaParaPesquisar]
+              .toString()
+              .toLowerCase()
+              .includes(textoPesquisaMinimizado);
+          }
+        });
+      }
     }
 
     this.setState({ itensPesquisa: listagem });
@@ -412,6 +437,7 @@ class TabelaPaginacao extends React.Component {
       filterStatus,
       StatusValues,
       exportData,
+      filterDate,
     } = this.props;
     var existeAcoes = acoes && acoes.length > 0;
 
@@ -421,25 +447,33 @@ class TabelaPaginacao extends React.Component {
           <Row className="mb-2">
             <Col xs="auto">
               <Input
-                style={{ padding: "10" }}
+                style={{ width: "170px" }}
                 type="text"
                 placeholder="Pesquisar"
-                onChange={(e) => this.onPesquisar(e.target.value)}
+                onChange={(e) =>
+                  this.setState({
+                    ...this.state,
+                    textoParaPesquisar: e.target.value,
+                  })
+                }
               />
             </Col>
             <Col xs="auto">
               <select
-                style={{ marginLeft: 10 }}
+                style={{ width: "170px" }}
                 className={`custom-select form-control`}
                 onChange={(e) =>
-                  this.setState({ colunaParaPesquisar: e.target.value })
+                  this.setState({
+                    ...this.state,
+                    colunaParaPesquisar: e.target.value,
+                  })
                 }
               >
                 <option key={0} value="selecionar">
                   Filtros..
                 </option>
                 {colunas.map(function(data, key) {
-                  if (data.prop !== "status") {
+                  if (data.prop !== "status" && data.prop !== "DT_EMISSAO") {
                     return (
                       <option key={key} value={data.prop}>
                         {data.name}
@@ -452,7 +486,7 @@ class TabelaPaginacao extends React.Component {
             {filterStatus && (
               <Col xs="auto">
                 <select
-                  style={{ marginLeft: 10 }}
+                  style={{ width: "170px" }}
                   className={`custom-select form-control`}
                   onChange={(e) => this.handleFilterStatus(e.target.value)}
                 >
@@ -469,9 +503,48 @@ class TabelaPaginacao extends React.Component {
                 </select>
               </Col>
             )}
+            {filterDate && (
+              <>
+                <Col xs="auto">
+                  <Input
+                    style={{ width: "170px" }}
+                    type="date"
+                    onChange={(e) =>
+                      this.setState({
+                        ...this.state,
+                        dataInicialBusca: e.target.value,
+                      })
+                    }
+                  />
+                </Col>
+                <Col xs="auto">
+                  <Input
+                    style={{ width: "170px" }}
+                    type="date"
+                    onChange={(e) =>
+                      this.setState({
+                        ...this.state,
+                        dataFinalBusca: e.target.value,
+                      })
+                    }
+                  />
+                </Col>
+              </>
+            )}
+            <Col xs="auto" className="col-buttons">
+              <Button style={{ width: "80px" }} onClick={this.onPesquisar}>
+                Buscar
+              </Button>
+            </Col>
+
             {exportData && (
-              <Col>
-                <Button style={{ width: "135px" }} onClick={this.handleExportacao}>Exportar dados</Button>
+              <Col xs="auto" className="col-buttons">
+                <Button
+                  style={{ width: "85px" }}
+                  onClick={this.handleExportacao}
+                >
+                  Exportar
+                </Button>
               </Col>
             )}
             {(arquivoExportacao || msgErroExportacao) && (

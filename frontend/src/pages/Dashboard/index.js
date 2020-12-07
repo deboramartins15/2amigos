@@ -183,6 +183,7 @@ class Dashboard extends Component {
               colunas={[...columnsNF]}
               footerTitulo={"Total NF:"}
               filterStatus={true}
+              filterDate={true}
               StatusValues={statusValues}
               exportData={true}
             />

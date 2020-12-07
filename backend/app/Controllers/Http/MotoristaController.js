@@ -24,7 +24,10 @@ class MotoristaController {
         return response.status(400).send({ error: "Motorista já cadastrado" });
       }
 
-      const motorista = await Motorista.create({NOME: data.nome, DOCUMENTO: data.documento});
+      const motorista = await Motorista.create({
+        NOME: data.nome,
+        DOCUMENTO: data.documento
+      });
 
       return motorista;
     } catch (error) {
@@ -46,15 +49,18 @@ class MotoristaController {
 
       const data = request.only(["nome", "documento"]);
 
-      const documentoExists = await Motorista.findBy(
-        "DOCUMENTO",
-        data.documento
-      );
-      if (documentoExists) {
+      const documentoExists = await Motorista.query()
+        .where("DOCUMENTO", "=", data.documento)
+        .where("NOME", "=", data.nome)
+        .fetch();
+
+      const documentoExistsJSON = documentoExists.toJSON();
+
+      if (documentoExistsJSON.length > 0) {
         return response.status(400).send({ error: "Motorista já cadastrado" });
       }
 
-      motorista.merge({NOME: data.nome, DOCUMENTO: data.documento});
+      motorista.merge({ NOME: data.nome, DOCUMENTO: data.documento });
       await motorista.save();
 
       return motorista;

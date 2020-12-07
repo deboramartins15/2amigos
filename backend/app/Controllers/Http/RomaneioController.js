@@ -151,7 +151,7 @@ class RomaneioController {
 
         await Mail.send("welcome", romaneio.toJSON(), message => {
           message
-            .to("david.ramos@2amigos.com.br")
+            .to("transporte@2amigos.com.br")
             .from("2amigostransportadora@gmail.com")
             .subject("Embarque 2 Amigos")
             .attach(
@@ -197,7 +197,7 @@ class RomaneioController {
         anexos.map(async anexo => {
           await Mail.send("welcome", romaneio.toJSON(), message => {
             message
-              .to("david.ramos@2amigos.com.br")
+              .to("transporte@2amigos.com.br")
               .from("2amigostransportadora@gmail.com")
               .subject("Manifesto 2 Amigos")
               .attach(anexo, {

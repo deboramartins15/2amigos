@@ -138,11 +138,15 @@ const Romaneio = () => {
 
       const nf = await api.get(`/leitura/${chave.trim()}`);
 
-      if (nf.data[0].status[0].descricao !== "Recebida")
-        return setMsgError("danger", "Nota fiscal não recebida");
-
-      if (nf.data[0].ROMANEIO_ID)
+      if (nf.data[0].ROMANEIO_ID){
+        setCodBarra("");
         return setMsgError("danger", "Nota fiscal já pertence a um romaneio");
+      }
+
+      if (nf.data[0].status[0].descricao !== "Recebida"){
+        setCodBarra("");
+        return setMsgError("danger", "Nota fiscal não recebida");
+      }
 
       const exists = nfs.filter((nf) => nf.CHAVE_NF === chave.trim());
 

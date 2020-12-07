@@ -119,16 +119,27 @@ const LeituraRomaneio = () => {
 
   const handleLeitura = async (chave) => {
     try {
+      setCodBarra(chave.trim());
+
+      if (!chave) {
+        setMsgError("danger", "Informe o código de barra da NF !");
+        return;
+      }
+
       const nf = await api.get(`/leitura/${chave.trim()}`);
 
-      if (nf.data[0].status[0].descricao !== "Recebida")
+      if (nf.data[0].status[0].descricao !== "Recebida"){
+        setCodBarra("");
         return setMsgError("danger", "Nota fiscal não recebida");
+      }
 
       if (RomaneioId) {
         const exists = nfs.filter((n) => n.CHAVE_NF === nf.data[0].CHAVE_NF);
 
-        if (exists.length === 0)
+        if (exists.length === 0){
+          setCodBarra("");
           return setMsgError("danger", "Nota fiscal não pertence ao romaneio");
+        }
 
         await api.put(`nf/${nf.data[0].id}`, {
           status: "Em Processo",
@@ -137,12 +148,15 @@ const LeituraRomaneio = () => {
         });
 
         await fetchData();
+        setCodBarra("");
       }
     } catch (error) {
       setMsgError(
         "danger",
         error.response.data ? error.response.data.error : error.response
       );
+
+      setCodBarra("");
     }
   };
 

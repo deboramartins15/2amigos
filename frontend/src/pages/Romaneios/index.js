@@ -116,13 +116,12 @@ const Romaneios = () => {
         setMsgError("success", "Romaneio expedido com sucesso !");
       } else if (response.data[0].status[0].descricao === "Embarcado") {
         setMsgError("info", "Reenviando relatórios de romaneio...");
-        await api.get(`/romaneio/reenvio/email/${id}`,{timeout: 20000});
+        await api.get(`/romaneio/reenvio/email/${id}`);
         setMsgError("success", "Relatórios de romaneio reenviados com sucesso !");
       }else {
         setMsgError("danger", "Romaneio não conferido");
       }
-    } catch (error) {
-      console.log(error.response)
+    } catch (error) {      
       setMsgError(
         "danger",
         error.response.data.error

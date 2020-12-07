@@ -71,7 +71,7 @@ class RomaneioController {
       const romaneio = await Romaneio.create(data);
 
       dataRequest.nfs.map(async nf => {
-        const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);        
+        const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
         NF.merge({ ROMANEIO_ID: romaneio.id });
         NF.save();
       });
@@ -244,10 +244,9 @@ class RomaneioController {
       if (!params.id)
         return response.status(400).send({ error: "Informe o romaneio" });
 
-      const romaneio = await Romaneio.findOrFail(params.id);
+      const romaneio = await Romaneio.find(params.id);
 
       const consolidado = await geraInfoManifestoConsolidado(params.id);
-
       const destinatarios = await geraInfoManifestoDestinatario(params.id);
 
       await criaPDFConsolidado(consolidado);

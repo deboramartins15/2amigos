@@ -69,7 +69,7 @@ async function getJsonFromXML(xml) {
 
 async function geraInfoManifestoConsolidado(romaneioId) {
   const romaneio = await Romaneio.find(romaneioId);
-  romaneio.load("motorista")
+  await romaneio.load("motorista")
 
   const nfs = await NotaFiscal.query()
     .where("ROMANEIO_ID", "=", romaneioId)    
@@ -96,7 +96,7 @@ async function geraInfoManifestoConsolidado(romaneioId) {
 
 async function geraInfoManifestoDestinatario(romaneioId) {
   const romaneio = await Romaneio.find(romaneioId);
-  romaneio.load("motorista")
+  await romaneio.load("motorista")
 
   const nfs = await NotaFiscal.query()
     .where("ROMANEIO_ID", "=", romaneioId)

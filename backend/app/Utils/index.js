@@ -78,9 +78,11 @@ async function geraInfoManifestoConsolidado(romaneioId) {
   const nfsJSON = nfs.toJSON();
   let totalNf = 0;
   let totalVolume = 0;
+  let totalPeso = 0;
   nfsJSON.map(nf => {
     totalNf += parseFloat(nf.TOTAL_NF);
     totalVolume += parseFloat(nf.VOLUME);
+    totalPeso += parseFloat(nf.PESO_BRUTO);
   });
 
   return {
@@ -89,6 +91,7 @@ async function geraInfoManifestoConsolidado(romaneioId) {
     totais: {
       valorNf: totalNf.toFixed(2),
       Volume: totalVolume,
+      peso: totalPeso,
       QtdNfs: nfsJSON.length
     }
   };
@@ -133,13 +136,16 @@ async function geraInfoManifestoDestinatario(romaneioId) {
   Object.keys(destinatarios).map(dest => {
     let totalNf = 0;
     let totalVolume = 0;
+    let totalPeso = 0;
     destinatarios[dest].map(nf => {
       totalNf += parseFloat(nf.TOTAL_NF);
       totalVolume += parseFloat(nf.VOLUME);
+      totalPeso += parseFloat(nf.PESO_BRUTO);
     });
     destinatarios[dest].totais = {
       totalNf,
       totalVolume,
+      peso: totalPeso,
       QtdNfs: destinatarios[dest].length
     };
   });
@@ -245,7 +251,7 @@ async function criaPDFConsolidado(consolidado) {
             <td>${consolidado.totais.QtdNfs}</td>
             <td>Total Volume</td>
             <td>${consolidado.totais.Volume}</td>
-            <td>Total Valor</td>
+            <td>${consolidado.totais.peso}</td>
             <td>${consolidado.totais.valorNf}</td>
           </tr>
         </tfooter>
@@ -373,7 +379,7 @@ async function criaPDFDestinatarios(destinatarios) {
               <td>Totais:</td>
               <td>${destinatarios.nfs[nf].totais.QtdNfs}</td>            
               <td>${destinatarios.nfs[nf].totais.totalVolume}</td> 
-              <td></td>           
+              <td>${destinatarios.nfs[nf].totais.peso}</td>           
               <td>${destinatarios.nfs[nf].totais.totalNf}</td>
             </tr>
           </tfooter>

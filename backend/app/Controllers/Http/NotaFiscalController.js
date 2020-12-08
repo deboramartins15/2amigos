@@ -4,7 +4,7 @@ const NotaFiscal = use("App/Models/NotaFiscal");
 const Status = use("App/Models/Status");
 const Loja = use("App/Models/Loja");
 
-const json2csv = require("json2csv").parse;
+const json2xls = require('json2xls');
 const fs = require("fs");
 const path = require("path");
 
@@ -172,6 +172,10 @@ class NotaFiscalController {
     try {      
       const nfs = request.only(["data"]);
 
+      nfs.data.map(nf => {        
+        return nf.status_desc = nf.status[0].descricao
+      })
+
       const fields = [
         "CNPJ_EMISSOR",
         "RAZAOSOCIAL_EMISSOR",
@@ -189,22 +193,21 @@ class NotaFiscalController {
         "PESO_BRUTO",
         "DT_INTEGRACAO",
         "USER_INTEGRACAO",
-        "STATUS_ID"
+        "DT_PROCESSO",
+        "USER_PROCESSO",
+        "status_desc"
       ];
       const opts = { fields };
 
-      if (nfs) {
-        const csv = json2csv(nfs.data, opts);
-        const dataArquivo = new Date()
-          .toLocaleDateString("pt-BR")
-          .replace("/", "-")
-          .replace("/", "-");
-        const filename = `2amigos-notasfiscais${dataArquivo}.csv`;
+      if (nfs) {        
+        const xls = json2xls(nfs.data, opts);
+        const filename = `2amigos-notasfiscais.xlsx`;
 
-        if (csv) {
+        if (xls) {
           fs.writeFileSync(
             path.join(__dirname, "..", "..", "..", "tmp", "exports", filename),
-            csv,
+            xls,
+            'binary',
             function(err) {
               if (err) throw err;              
             }

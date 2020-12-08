@@ -4,7 +4,7 @@ const NotaFiscal = use("App/Models/NotaFiscal");
 const Status = use("App/Models/Status");
 const Loja = use("App/Models/Loja");
 
-const json2xls = require('json2xls');
+const json2xls = require("json2xls");
 const fs = require("fs");
 const path = require("path");
 
@@ -152,29 +152,44 @@ class NotaFiscalController {
 
   async findByCodBarra({ params, response }) {
     try {
-      if(!params.codBarra){
-        return response.status(400).send({error: "Informe o código de barra!"})
-      }
-      
-      const nf = await NotaFiscal.query().where("CHAVE_NF", "=" ,params.codBarra).with("status").fetch();
-      
-      if(nf.toJSON().length === 0){
-        return response.status(400).send({error: 'Nota fiscal não importada!'})
+      if (!params.codBarra) {
+        return response
+          .status(400)
+          .send({ error: "Informe o código de barra!" });
       }
 
-      return nf
+      const nf = await NotaFiscal.query()
+        .where("CHAVE_NF", "=", params.codBarra)
+        .with("status")
+        .fetch();
+
+      if (nf.toJSON().length === 0) {
+        return response
+          .status(400)
+          .send({ error: "Nota fiscal não importada!" });
+      }
+
+      return nf;
     } catch (error) {
       return response.status(500).send(error);
     }
   }
 
   async exportToCSV({ request, response }) {
-    try {      
+    try {
       const nfs = request.only(["data"]);
 
-      nfs.data.map(nf => {        
-        return nf.status_desc = nf.status[0].descricao
-      })
+      nfs.data.map(nf => {
+        nf.status_desc = nf.status[0].descricao;
+
+        if (nf.status[0].descricao === "Recebida")
+          nf.status_desc = "CD 2 Amigos";
+
+        if (nf.status[0].descricao === "Expedido")
+          nf.status_desc = "Saiu para entrega";
+
+        return nf.status_desc;
+      });
 
       const fields = [
         "CNPJ_EMISSOR",
@@ -199,7 +214,7 @@ class NotaFiscalController {
       ];
       const opts = { fields };
 
-      if (nfs) {        
+      if (nfs) {
         const xls = json2xls(nfs.data, opts);
         const filename = `2amigos-notasfiscais.xlsx`;
 
@@ -207,12 +222,12 @@ class NotaFiscalController {
           fs.writeFileSync(
             path.join(__dirname, "..", "..", "..", "tmp", "exports", filename),
             xls,
-            'binary',
+            "binary",
             function(err) {
-              if (err) throw err;              
+              if (err) throw err;
             }
           );
-          return response.status(200).send()
+          return response.status(200).send();
         }
 
         return response.status(400).send({ message: "Erro ao exportar dados" });

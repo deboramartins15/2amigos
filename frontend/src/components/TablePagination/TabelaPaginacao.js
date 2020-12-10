@@ -180,17 +180,19 @@ class TabelaPaginacao extends React.Component {
   onPesquisar() {
     const textoPesquisaMinimizado = this.state.textoParaPesquisar.toLowerCase();
     let listagem = this.props.fonteDeDados;
+    const campoData = this.props.DateColumnFilter;
 
+    
     if (this.state.dataInicialBusca && this.state.dataFinalBusca) {
       if (
         new Date(this.state.dataInicialBusca) <=
         new Date(this.state.dataFinalBusca)
-      ) {
-        listagem = listagem.filter((nf) => {
+        ) {
+          listagem = listagem.filter((nf) => {            
           return (
-            new Date(nf['DT_EMISSAO']) >=
+            new Date(nf[campoData]) >=
               new Date(this.state.dataInicialBusca) &&
-            new Date(nf['DT_EMISSAO']) <= new Date(this.state.dataFinalBusca)
+            new Date(nf[campoData]) <= new Date(this.state.dataFinalBusca)
           );
         });
       }
@@ -473,7 +475,7 @@ class TabelaPaginacao extends React.Component {
                   Filtros..
                 </option>
                 {colunas.map(function(data, key) {
-                  if (data.prop !== "status" && data.prop !== "DT_EMISSAO") {
+                  if (data.prop !== "status" && data.prop !== "DT_EMISSAO" && data.prop !== "created_at") {
                     return (
                       <option key={key} value={data.prop}>
                         {data.name}
@@ -622,6 +624,14 @@ class TabelaPaginacao extends React.Component {
                           return (
                             <td key={coluna}>
                               {linha[coluna] === true ? "Sim" : "Não"}
+                            </td>
+                          );
+                          case "created_at":
+                          return (
+                            <td key={coluna}>
+                              {new Date(linha[coluna]).toLocaleDateString(
+                                "pt-BR"
+                              )}
                             </td>
                           );
                         default:

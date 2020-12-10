@@ -11,8 +11,16 @@ import { getUserId } from "../../services/auth";
 
 const columnsRomaneio = [
   {
+    prop: "id",
+    name: "Código"
+  },
+  {
     prop: "PLACAVEICULO",
     name: "Placa veículo",
+  },
+  {
+    prop: "created_at",
+    name: "Criado em",
   },
   {
     prop: "status",
@@ -21,7 +29,7 @@ const columnsRomaneio = [
   {
     prop: "motorista",
     name: "Motorista",
-  },
+  },  
 ];
 
 const Romaneios = () => {
@@ -114,7 +122,7 @@ const Romaneios = () => {
         fetchData();
 
         setMsgError("success", "Romaneio expedido com sucesso !");
-      } else if (response.data[0].status[0].descricao === "Embarcado") {
+      } else if (response.data[0].status[0].descricao === "Embarcado" || response.data[0].status[0].descricao === "Entregue") {
         setMsgError("info", "Reenviando relatórios de romaneio...");
         await api.get(`/romaneio/reenvio/email/${id}`);
         setMsgError("success", "Relatórios de romaneio reenviados com sucesso !");
@@ -159,6 +167,8 @@ const Romaneios = () => {
           exportData={true}
           filterStatus={true}
           StatusValues={statusValues}
+          filterDate={true}
+          DateColumnFilter={'created_at'}
         />
       </Container>
     </PageDefault>

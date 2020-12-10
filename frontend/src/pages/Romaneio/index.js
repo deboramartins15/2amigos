@@ -20,10 +20,10 @@ import { getUserId } from "../../services/auth";
 import { useHistory } from "react-router-dom";
 
 const columnsNF = [
-  {
-    name: "CNPJ",
-    prop: "CNPJ_FAVORECIDO",
-  },
+  // {
+  //   name: "CNPJ",
+  //   prop: "CNPJ_FAVORECIDO",
+  // },
   {
     name: "Razão Social",
     prop: "RAZAOSOCIAL_FAVORECIDO",
@@ -71,6 +71,7 @@ const Romaneio = () => {
   const [visible, setVisible] = useState(true);
   const [conferido, setConferido] = useState(false);
   const [embarcado, setEmbarcado] = useState(false);
+  const [entregue, setEntregue] = useState(false);
   const [criado, setCriado] = useState(false);
   const [codRomaneio, setCodRomaneio] = useState("");
 
@@ -111,6 +112,9 @@ const Romaneio = () => {
         if (response.data[0].status[0].descricao === "Embarcado")
           setEmbarcado(true);
 
+        if (response.data[0].status[0].descricao === "Entregue")
+          setEntregue(true);
+
         setNfs(response.data[0].nota_fiscal);
         setPlaca(response.data[0].PLACAVEICULO);
         setMotorista(response.data[0].MOTORISTA);
@@ -138,12 +142,12 @@ const Romaneio = () => {
 
       const nf = await api.get(`/leitura/${chave.trim()}`);
 
-      if (nf.data[0].ROMANEIO_ID){
+      if (nf.data[0].ROMANEIO_ID) {
         setCodBarra("");
         return setMsgError("danger", "Nota fiscal já pertence a um romaneio");
       }
 
-      if (nf.data[0].status[0].descricao !== "Recebida"){
+      if (nf.data[0].status[0].descricao !== "Recebida") {
         setCodBarra("");
         return setMsgError("danger", "Nota fiscal não recebida");
       }
@@ -174,6 +178,31 @@ const Romaneio = () => {
     setNfs(nfs.filter((nf) => nf.id !== id));
   }
 
+  async function handleEntregaNF(e, id) {
+    e.preventDefault();
+
+    try {
+      if (!embarcado)
+        return setMsgError(
+          "danger",
+          "Não é possível conferir a entrega da nota fiscal de um romaneio não embarcado"
+        );
+
+      await api.put(`nf/${id}`, {
+        status: "Entregue",
+        acao: "entrega",
+        login: getUserId(),
+      });
+
+      fetchData();
+    } catch (error) {
+      setMsgError(
+        "danger",
+        error.response.data ? error.response.data.error : error.response
+      );
+    }
+  }
+
   async function handleSave() {
     try {
       if (!placa || !motorista || !veiculo || veiculo === 0)
@@ -188,6 +217,12 @@ const Romaneio = () => {
           };
 
           await api.put(`romaneios/${codRomaneio}`, requestData);
+        } else if (embarcado) {
+          await api.put(`romaneios/${codRomaneio}`, {
+            status: "Entregue",
+            acao: "entrega",
+            login: getUserId(),
+          });
         } else {
           const requestData = {
             acao: "update",
@@ -225,6 +260,28 @@ const Romaneio = () => {
     }
   }
 
+  function handleBotoesAcoes() {
+    if (embarcado) {
+      return [
+        {
+          nome: "Entregue",
+          click: handleEntregaNF,
+          class: "btn btn-primary",
+        },
+      ];
+    } else if (entregue) {
+      return false;
+    } else {
+      return [
+        {
+          nome: "Excluir",
+          click: handleDeleteNf,
+          class: "btn btn-danger",
+        },
+      ];
+    }
+  }
+
   return (
     <PageDefault>
       <Container>
@@ -252,7 +309,7 @@ const Romaneio = () => {
                   placeholder="Placa Veículo.."
                   value={placa}
                   onChange={(e) => setPlaca(e.target.value)}
-                  disabled={embarcado}
+                  disabled={embarcado || entregue}
                 />
               </FormGroup>
             </Col>
@@ -265,6 +322,7 @@ const Romaneio = () => {
                   id="motorista"
                   value={motorista}
                   onChange={(e) => setMotorista(e.target.value)}
+                  disabled={embarcado || entregue}
                 >
                   <option value="0">Motorista..</option>
                   {motoristas.map((motorista, index) => (
@@ -287,7 +345,7 @@ const Romaneio = () => {
                   placeholder="Cód. Barras NF.."
                   value={codBarra}
                   onChange={(e) => handleLeitura(e.target.value)}
-                  disabled={!criado || conferido || embarcado}
+                  disabled={!criado || conferido || embarcado || entregue}
                 />
               </FormGroup>
             </Col>
@@ -300,6 +358,7 @@ const Romaneio = () => {
                   id="veiculo"
                   value={veiculo}
                   onChange={(e) => setVeiculo(e.target.value)}
+                  disabled={embarcado || entregue}
                 >
                   <option value="0">Veículo..</option>
                   {tipoVeiculos.map((veiculo, index) => (
@@ -321,9 +380,7 @@ const Romaneio = () => {
           filterStatus={true}
           filterDate={true}
           StatusValues={statusValues}
-          acoes={[
-            { nome: "Excluir", click: handleDeleteNf, class: "btn btn-danger" },
-          ]}
+          acoes={handleBotoesAcoes}
         />
         <Row className="row-buttons">
           <Col xs="auto">
@@ -331,7 +388,7 @@ const Romaneio = () => {
               color="primary"
               className="mt-2"
               onClick={handleSave}
-              disabled={embarcado}
+              disabled={entregue}
             >
               Salvar
             </Button>

@@ -121,7 +121,7 @@ class NotaFiscalController {
             DT_EXPEDICAO: new Date().toLocaleString("pt-br")
           };
           break;
-        case "entregue":
+        case "entrega":
           newData = {
             STATUS_ID: statusId.id,
             USER_ENTREGUE: data.login,

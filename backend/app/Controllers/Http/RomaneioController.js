@@ -99,7 +99,8 @@ class RomaneioController {
 
       if (
         data.acao.toLowerCase() === "conferir" ||
-        data.acao.toLowerCase() === "expedicao"
+        data.acao.toLowerCase() === "expedicao" ||
+        data.acao.toLowerCase() === "entrega"
       ) {
         const statusId = await Status.findBy("descricao", data.status);
 
@@ -118,6 +119,13 @@ class RomaneioController {
               STATUS_ID: statusId.id,
               USER_EMBARQUE: data.login,
               DT_EMBARQUE: new Date().toLocaleString("pt-br")
+            };
+            break;
+          case "entrega":
+            newData = {
+              STATUS_ID: statusId.id,
+              USER_ENTREGA: data.login,
+              DT_ENTREGA: new Date().toLocaleString("pt-br")
             };
             break;
         }

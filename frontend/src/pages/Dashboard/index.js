@@ -105,7 +105,7 @@ class Dashboard extends Component {
       } else {
         const loja = await api.get(`loja/${getUserId()}`);
         response = await api.get("nf", { headers: { CNPJ: loja.data.CNPJ } });
-      }
+      }      
       return response;
     } catch (error) {
       console.log(error.response);
@@ -184,6 +184,7 @@ class Dashboard extends Component {
               footerTitulo={"Total NF:"}
               filterStatus={true}
               filterDate={true}
+              DateColumnFilter={'DT_EMISSAO'}
               StatusValues={statusValues}
               exportData={true}
             />

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, memo } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import PageDefault from "../Default";
 
@@ -17,8 +17,6 @@ import { Container, Header } from "./styles";
 import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
 import api from "../../services/api";
 import { getUserId } from "../../services/auth";
-import { useHistory } from "react-router-dom";
-
 const columnsNF = [
   // {
   //   name: "CNPJ",
@@ -75,7 +73,6 @@ const Romaneio = () => {
   const [criado, setCriado] = useState(false);
   const [codRomaneio, setCodRomaneio] = useState("");
 
-  const history = useHistory();
   const { id: RomaneioId } = useParams();
 
   const onDismiss = () => setVisible(false);
@@ -380,7 +377,7 @@ const Romaneio = () => {
           filterStatus={true}
           filterDate={true}
           StatusValues={statusValues}
-          acoes={handleBotoesAcoes}
+          acoes={handleBotoesAcoes()}
         />
         <Row className="row-buttons">
           <Col xs="auto">

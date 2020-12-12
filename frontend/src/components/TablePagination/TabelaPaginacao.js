@@ -174,6 +174,8 @@ class TabelaPaginacao extends React.Component {
       case "FINAL":
         this.setState({ ...this.state, dataFinalBusca: data });
         break;
+      default:
+        break;
     }
   }
 

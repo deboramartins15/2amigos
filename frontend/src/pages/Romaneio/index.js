@@ -179,6 +179,14 @@ const Romaneio = () => {
     e.preventDefault();
 
     try {
+      const nf = await api.get(`nf/${id}`) 
+      
+      if(nf.data.DT_ENTREGUE){
+        return setMsgError(
+          "danger",
+          "Não é possível conferir a entrega de uma nota fiscal já entregue"
+        );
+      }
       if (!embarcado)
         return setMsgError(
           "danger",
@@ -258,7 +266,7 @@ const Romaneio = () => {
   }
 
   function handleBotoesAcoes() {
-    if (embarcado) {
+    if (embarcado || entregue) {
       return [
         {
           nome: "Entregue",
@@ -266,9 +274,7 @@ const Romaneio = () => {
           class: "btn btn-primary",
         },
       ];
-    } else if (entregue) {
-      return false;
-    } else {
+    }  else {
       return [
         {
           nome: "Excluir",
@@ -376,6 +382,7 @@ const Romaneio = () => {
           exportData={false}
           filterStatus={true}
           filterDate={true}
+          DateColumnFilter={'DT_EMISSAO'}
           StatusValues={statusValues}
           acoes={handleBotoesAcoes()}
         />
@@ -385,7 +392,6 @@ const Romaneio = () => {
               color="primary"
               className="mt-2"
               onClick={handleSave}
-              disabled={entregue}
             >
               Salvar
             </Button>

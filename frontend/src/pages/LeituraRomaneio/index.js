@@ -231,6 +231,7 @@ const LeituraRomaneio = () => {
           StatusValues={statusValues}
           exportData={true}
           filterDate={true}
+          DateColumnFilter={'DT_EMISSAO'}
         />
 
         <Row className="row-buttons">

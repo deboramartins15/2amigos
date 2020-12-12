@@ -169,6 +169,7 @@ function Leitura() {
             footerTitulo={"Total usuários:"}
             exportData={true}
             filterDate={true}
+            DateColumnFilter={'DT_EMISSAO'}
           />
         </TableWrapper>
       </Wrapper>

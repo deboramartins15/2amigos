@@ -4,7 +4,6 @@ import PageDefault from "../Default";
 import api from "../../services/api";
 
 import {
-  Container,
   Row,
   Col,
   Form,
@@ -15,7 +14,7 @@ import {
   Alert,
 } from "reactstrap";
 
-import { Wrapper, TableWrapper } from "./styles.js";
+import { Container } from "./styles.js";
 import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
 
 const initialState = {
@@ -134,14 +133,13 @@ const Motorista = () => {
     }
   }
   return (
-    <PageDefault title="Motoristas">
-      <Wrapper>
+    <PageDefault title="Motoristas">    
+        <Container>
         {msg.message && (
           <Alert color={msg.color} isOpen={visible} toggle={onDismiss}>
             <span>{msg.message}</span>
           </Alert>
         )}
-        <Container>
           <Form>
             <Row xs="2">
               <Col>
@@ -192,7 +190,6 @@ const Motorista = () => {
               </Col>
             </Row>
           </Form>
-          <TableWrapper>
             <TabelaPaginacao
               registrosPorPagina={2}
               fonteDeDados={motoristas}
@@ -204,9 +201,7 @@ const Motorista = () => {
               footerTitulo={'Total motoristas:'}
               exportData={false}
             />
-          </TableWrapper>
         </Container>
-      </Wrapper>
     </PageDefault>
   );
 };

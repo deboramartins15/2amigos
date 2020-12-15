@@ -10,7 +10,7 @@ import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
 import api from "../../services/api";
 import { getUserId, isMatriz, isTransportadora } from "../../services/auth";
 
-import { Container, UploadWrapper, TableWrapper } from "./styles";
+import { Container, UploadWrapper } from "./styles";
 
 class Dashboard extends Component {
   state = {
@@ -105,13 +105,12 @@ class Dashboard extends Component {
       } else {
         const loja = await api.get(`loja/${getUserId()}`);
         response = await api.get("nf", { headers: { CNPJ: loja.data.CNPJ } });
-      }      
+      }
       return response;
     } catch (error) {
       console.log(error.response);
     }
   }
-
 
   render() {
     const columnsNF = [
@@ -152,12 +151,7 @@ class Dashboard extends Component {
         prop: "status",
       },
     ];
-    const {
-      uploadedFiles,
-      showUpload,
-      statusValues,
-      nfs
-    } = this.state;
+    const { uploadedFiles, showUpload, statusValues, nfs } = this.state;
     const uploading =
       !!uploadedFiles.length &&
       (uploadedFiles[uploadedFiles.length - 1].uploaded ||
@@ -176,19 +170,18 @@ class Dashboard extends Component {
               </UploadWrapper>
             </>
           )}
-          <TableWrapper marginInput={showUpload ? "2%" : "2.5%"}>            
-            <TabelaPaginacao
-              registrosPorPagina={4}
-              fonteDeDados={nfs}
-              colunas={[...columnsNF]}
-              footerTitulo={"Total NF:"}
-              filterStatus={true}
-              filterDate={true}
-              DateColumnFilter={'DT_EMISSAO'}
-              StatusValues={statusValues}
-              exportData={true}
-            />
-          </TableWrapper>
+
+          <TabelaPaginacao
+            registrosPorPagina={4}
+            fonteDeDados={nfs}
+            colunas={[...columnsNF]}
+            footerTitulo={"Total NF:"}
+            filterStatus={true}
+            filterDate={true}
+            DateColumnFilter={"DT_EMISSAO"}
+            StatusValues={statusValues}
+            exportData={true}
+          />
         </Container>
       </PageDefault>
     );

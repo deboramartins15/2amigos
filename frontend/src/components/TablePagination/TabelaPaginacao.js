@@ -184,16 +184,14 @@ class TabelaPaginacao extends React.Component {
     let listagem = this.props.fonteDeDados;
     const campoData = this.props.DateColumnFilter;
 
-    
     if (this.state.dataInicialBusca && this.state.dataFinalBusca) {
       if (
         new Date(this.state.dataInicialBusca) <=
         new Date(this.state.dataFinalBusca)
-        ) {
-          listagem = listagem.filter((nf) => {            
+      ) {
+        listagem = listagem.filter((nf) => {
           return (
-            new Date(nf[campoData]) >=
-              new Date(this.state.dataInicialBusca) &&
+            new Date(nf[campoData]) >= new Date(this.state.dataInicialBusca) &&
             new Date(nf[campoData]) <= new Date(this.state.dataFinalBusca)
           );
         });
@@ -203,7 +201,8 @@ class TabelaPaginacao extends React.Component {
     if (this.state.colunaParaPesquisar !== "selecionar") {
       if (
         this.state.colunaParaPesquisar === "matriz" ||
-        this.state.colunaParaPesquisar === "transportadora"
+        this.state.colunaParaPesquisar === "transportadora" ||
+        this.state.colunaParaPesquisar === "ROMANEIOENTRADA" 
       ) {
         listagem = listagem.filter((x) => {
           if (textoPesquisaMinimizado === "sim") {
@@ -477,7 +476,11 @@ class TabelaPaginacao extends React.Component {
                   Filtros..
                 </option>
                 {colunas.map(function(data, key) {
-                  if (data.prop !== "status" && data.prop !== "DT_EMISSAO" && data.prop !== "created_at") {
+                  if (
+                    data.prop !== "status" &&
+                    data.prop !== "DT_EMISSAO" &&
+                    data.prop !== "created_at"
+                  ) {
                     return (
                       <option key={key} value={data.prop}>
                         {data.name}
@@ -628,12 +631,18 @@ class TabelaPaginacao extends React.Component {
                               {linha[coluna] === true ? "Sim" : "Não"}
                             </td>
                           );
-                          case "created_at":
+                        case "created_at":
                           return (
                             <td key={coluna}>
                               {new Date(linha[coluna]).toLocaleDateString(
                                 "pt-BR"
                               )}
+                            </td>
+                          );
+                        case "ROMANEIOENTRADA":
+                          return (
+                            <td key={coluna}>
+                              {linha[coluna] === true ? "Sim" : "Não"}
                             </td>
                           );
                         default:

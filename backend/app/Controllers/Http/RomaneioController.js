@@ -55,7 +55,8 @@ class RomaneioController {
         "placa",
         "motorista",
         "veiculo",
-        "login"
+        "login",
+        "romaneioEntrada"
       ]);
 
       const statusPendente = await Status.findBy("descricao", "Pendente");
@@ -68,13 +69,19 @@ class RomaneioController {
         STATUS_ID: statusPendente.id
       };
 
+      if (dataRequest.romaneioEntrada) {
+        data.ROMANEIOENTRADA = true;
+      }
+
       const romaneio = await Romaneio.create(data);
 
-      dataRequest.nfs.map(async nf => {
-        const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
-        NF.merge({ ROMANEIO_ID: romaneio.id });
-        NF.save();
-      });
+      if (!dataRequest.romaneioEntrada) {
+        dataRequest.nfs.map(async nf => {
+          const NF = await NotaFiscal.findBy("CHAVE_NF", nf.CHAVE_NF);
+          NF.merge({ ROMANEIO_ID: romaneio.id });
+          NF.save();
+        });
+      }
 
       return response.status(200).send(romaneio);
     } catch (error) {
@@ -322,6 +329,19 @@ class RomaneioController {
       return response.status(200).send(romaneio);
     } catch (error) {
       return response.status(error.status).send(error);
+    }
+  }
+
+  async listRomaneioEntrada({ response }) {
+    try {
+      return Romaneio.query()
+        .where("ROMANEIOENTRADA", "=", true)
+        .with("nota_fiscal")
+        .with("status")
+        .with("motorista")
+        .fetch();
+    } catch (error) {
+      return response.status(500).send(error.message);
     }
   }
 }

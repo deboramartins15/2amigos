@@ -22,6 +22,7 @@ Route.get('/', () => {
 
 Route.post("/signup", "LojaController.store");
 Route.post("/login", "SessionController.create");
+Route.get("/romaneios/entrada","RomaneioController.listRomaneioEntrada").middleware("auth");
 
 Route.resource("loja", "LojaController").apiOnly().middleware("auth");
 Route.resource("nf", "NotaFiscalController").apiOnly().middleware("auth");

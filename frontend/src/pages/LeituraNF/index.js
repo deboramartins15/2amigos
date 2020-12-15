@@ -3,18 +3,9 @@ import React, { useState, useEffect } from "react";
 import PageDefault from "../Default";
 import api from "../../services/api";
 
-import {
-  Container,
-  Row,
-  Col,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  Alert,
-} from "reactstrap";
+import { Row, Col, Form, FormGroup, Label, Input, Alert } from "reactstrap";
 
-import { Wrapper, TableWrapper } from "./styles.js";
+import { Container } from "./styles.js";
 import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
 import { getUserId } from "../../services/auth";
 
@@ -58,18 +49,22 @@ function Leitura() {
   const [msg, setMsg] = useState({ color: "", message: "" });
   const [visible, setVisible] = useState(true);
   const [nfs, setNfs] = useState([]);
+  const [romaneios, setRomaneios] = useState([]);
+  const [romaneio, setRomaneio] = useState();
 
   const onDismiss = () => setVisible(false);
 
   async function fetchData() {
     try {
       const response = await api.get("nf");
+      const romaneiosResponse = await api.get("/romaneios/entrada")
 
       const nfsFiltered = response.data.filter((nf) => {
         return nf.status[0].descricao === "Previsao de Recebimento";
       });
 
       setNfs(nfsFiltered);
+      setRomaneios(romaneiosResponse.data)
     } catch (error) {
       console.log(error.response);
     }
@@ -80,12 +75,17 @@ function Leitura() {
   }, []);
 
   const handleLeitura = async (codigo) => {
-    // e.preventDefault();
     setCodBarra(codigo.trim());
 
     try {
       if (!codigo) {
         setMsgError("danger", "Informe o código de barra da NF !");
+        return;
+      }
+
+      if (!romaneio) {
+        setMsgError("danger", "Informe o romaneio de entrada !");
+        setCodBarra("");
         return;
       }
 
@@ -104,6 +104,7 @@ function Leitura() {
           status: "Recebida",
           acao: "recebimento",
           login: getUserId(),
+          romaneioEntrada: romaneio
         });
 
         if (response.status === 200) {
@@ -135,44 +136,59 @@ function Leitura() {
 
   return (
     <PageDefault>
-      <Wrapper>
+      <Container>
         {msg.message && (
           <Alert color={msg.color} isOpen={visible} toggle={onDismiss}>
             <span>{msg.message}</span>
           </Alert>
         )}
-        <Container>
-          <Form>
-            <Row xs="2">
-              <Col>
-                <FormGroup>
-                  <Label for="cod_barra">Cód. Barras</Label>
-                  <Input
-                    type="text"
-                    name="cod_barra"
-                    id="cod_barra"
-                    placeholder="Cód. Barras.."
-                    value={codBarra}
-                    onChange={(e) => handleLeitura(e.target.value)}
-                    autoFocus
-                  />
-                </FormGroup>
-              </Col>
-            </Row>
-          </Form>
-        </Container>
-        <TableWrapper>
-          <TabelaPaginacao
-            registrosPorPagina={5}
-            fonteDeDados={nfs}
-            colunas={[...columnsNF]}
-            footerTitulo={"Total usuários:"}
-            exportData={true}
-            filterDate={true}
-            DateColumnFilter={'DT_EMISSAO'}
-          />
-        </TableWrapper>
-      </Wrapper>
+        <Form>
+          <Row xs="2">
+            <Col>
+              <FormGroup>
+                <Label for="romaneio">Romaneio Entrada</Label>
+                <Input
+                  type="select"
+                  name="romaneio"
+                  id="romaneio"
+                  value={romaneio}
+                  onChange={(e) => setRomaneio(e.target.value)}
+                >
+                  <option value="0">Romaneio entrada..</option>
+                  {romaneios.map((romaneio, index) => (
+                    <option key={index} value={romaneio.id}>
+                      {`${romaneio.id} - ${romaneio.PLACAVEICULO}`}
+                    </option>
+                  ))}
+                </Input>
+              </FormGroup>
+            </Col>
+            <Col>
+              <FormGroup>
+                <Label for="cod_barra">Cód. Barras</Label>
+                <Input
+                  type="text"
+                  name="cod_barra"
+                  id="cod_barra"
+                  placeholder="Cód. Barras.."
+                  value={codBarra}
+                  onChange={(e) => handleLeitura(e.target.value)}
+                  autoFocus
+                />
+              </FormGroup>
+            </Col>
+          </Row>
+        </Form>
+        <TabelaPaginacao
+          registrosPorPagina={5}
+          fonteDeDados={nfs}
+          colunas={[...columnsNF]}
+          footerTitulo={"Total usuários:"}
+          exportData={true}
+          filterDate={true}
+          DateColumnFilter={"DT_EMISSAO"}
+        />
+      </Container>
     </PageDefault>
   );
 }

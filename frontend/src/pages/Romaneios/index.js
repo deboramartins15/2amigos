@@ -4,7 +4,7 @@ import PageDefault from "../Default";
 
 import { Button, Alert } from "reactstrap";
 
-import { Container } from "./styles";
+import { Container, ButtonsWrapper } from "./styles";
 import TabelaPaginacao from "../../components/TablePagination/TabelaPaginacao";
 import api from "../../services/api";
 import { getUserId } from "../../services/auth";
@@ -12,7 +12,7 @@ import { getUserId } from "../../services/auth";
 const columnsRomaneio = [
   {
     prop: "id",
-    name: "Código"
+    name: "Código",
   },
   {
     prop: "PLACAVEICULO",
@@ -23,13 +23,17 @@ const columnsRomaneio = [
     name: "Criado em",
   },
   {
+    prop: "ROMANEIOENTRADA",
+    name: "Romaneio entrada",
+  },
+  {
     prop: "status",
     name: "Status",
   },
   {
     prop: "motorista",
     name: "Motorista",
-  },  
+  },
 ];
 
 const Romaneios = () => {
@@ -66,11 +70,23 @@ const Romaneios = () => {
     }
   }
 
+  async function isRomaneioEntrada(id) {
+    const romaneioFiltered = romaneios.filter((romaneio) => romaneio.id === id);
+
+    return romaneioFiltered[0].ROMANEIOENTRADA;
+  }
+
   async function fetchRomaneio(e, id) {
     e.preventDefault();
 
     try {
-      history.push(`/romaneio/${id}`);
+      const isEntrada = await isRomaneioEntrada(id);
+
+      if (isEntrada) {
+        history.push(`/romaneioEntrada/${id}`);
+      } else {
+        history.push(`/romaneio/${id}`);
+      }
     } catch (error) {
       setMsgError(
         "danger",
@@ -81,10 +97,17 @@ const Romaneios = () => {
     }
   }
 
-  async function conferirRomaneio(e,id){
+  async function conferirRomaneio(e, id) {
     e.preventDefault();
 
     try {
+      const isEntrada = await isRomaneioEntrada(id);
+
+      if (isEntrada) {
+        setMsgError("danger", "Operação inválida para romaneios de entrada!");
+        return;
+      }
+
       history.push(`/romaneio/leitura/${id}`);
     } catch (error) {
       setMsgError(
@@ -100,11 +123,18 @@ const Romaneios = () => {
     e.preventDefault();
 
     try {
+      const isEntrada = await isRomaneioEntrada(id);
+
+      if (isEntrada) {
+        setMsgError("danger", "Operação inválida para romaneios de entrada!");
+        return;
+      }
+
       const response = await api.get(`romaneios/${id}`);
 
       if (response.data[0].status[0].descricao === "Conferido") {
         setMsgError("info", "Expedindo romaneio...");
-        
+
         response.data[0].nota_fiscal.map(async (nf) => {
           await api.put(`nf/${nf.id}`, {
             status: "Expedido",
@@ -113,23 +143,33 @@ const Romaneios = () => {
           });
         });
 
-        await api.put(`romaneios/${id}`, {
-          status: "Embarcado",
-          acao: "expedicao",
-          login: getUserId(),
-        },{timeout: 20000});
+        await api.put(
+          `romaneios/${id}`,
+          {
+            status: "Embarcado",
+            acao: "expedicao",
+            login: getUserId(),
+          },
+          { timeout: 20000 }
+        );
 
         fetchData();
 
         setMsgError("success", "Romaneio expedido com sucesso !");
-      } else if (response.data[0].status[0].descricao === "Embarcado" || response.data[0].status[0].descricao === "Entregue") {
+      } else if (
+        response.data[0].status[0].descricao === "Embarcado" ||
+        response.data[0].status[0].descricao === "Entregue"
+      ) {
         setMsgError("info", "Reenviando relatórios de romaneio...");
         await api.get(`/romaneio/reenvio/email/${id}`);
-        setMsgError("success", "Relatórios de romaneio reenviados com sucesso !");
-      }else {
+        setMsgError(
+          "success",
+          "Relatórios de romaneio reenviados com sucesso !"
+        );
+      } else {
         setMsgError("danger", "Romaneio não conferido");
       }
-    } catch (error) {      
+    } catch (error) {
       setMsgError(
         "danger",
         error.response.data.error
@@ -151,16 +191,25 @@ const Romaneios = () => {
             <span>{msg.message}</span>
           </Alert>
         )}
-        <Link to="/romaneio">
-          <Button>Novo romaneio</Button>
-        </Link>
+        <ButtonsWrapper>
+          <Link to="/romaneioEntrada">
+            <Button className="mr-2">Novo romaneio Entrada</Button>
+          </Link>
+          <Link to="/romaneio">
+            <Button>Novo romaneio Saída</Button>
+          </Link>
+        </ButtonsWrapper>
         <TabelaPaginacao
           registrosPorPagina={5}
           fonteDeDados={romaneios}
           colunas={[...columnsRomaneio]}
           acoes={[
             { nome: "Editar", click: fetchRomaneio, class: "btn btn-info" },
-            { nome: "Conferir", click: conferirRomaneio, class: "btn btn-info" },
+            {
+              nome: "Conferir",
+              click: conferirRomaneio,
+              class: "btn btn-info",
+            },
             { nome: "Expedir", click: expedirRomaneio, class: "btn btn-info" },
           ]}
           footerTitulo={"Total romaneios:"}
@@ -168,7 +217,7 @@ const Romaneios = () => {
           filterStatus={true}
           StatusValues={statusValues}
           filterDate={true}
-          DateColumnFilter={'created_at'}
+          DateColumnFilter={"created_at"}
         />
       </Container>
     </PageDefault>

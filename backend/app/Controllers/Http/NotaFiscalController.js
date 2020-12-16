@@ -93,7 +93,7 @@ class NotaFiscalController {
 
   async update({ params, request, response }) {
     try {
-      const data = request.only(["status", "acao", "login"]);
+      const data = request.only(["status", "acao", "login", "romaneioEntrada"]);
 
       const NF = await NotaFiscal.findOrFail(params.id);
       const statusId = await Status.findBy("descricao", data.status);
@@ -104,7 +104,8 @@ class NotaFiscalController {
           newData = {
             STATUS_ID: statusId.id,
             USER_RECEBIDO: data.login,
-            DT_RECEBIDO: new Date().toLocaleString("pt-br")
+            DT_RECEBIDO: new Date().toLocaleString("pt-br"),
+            ROMANEIO_ID: data.romaneioEntrada
           };
           break;
         case "processamento":

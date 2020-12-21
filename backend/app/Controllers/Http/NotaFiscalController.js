@@ -97,7 +97,7 @@ class NotaFiscalController {
 
       const NF = await NotaFiscal.findOrFail(params.id);
       const statusId = await Status.findBy("descricao", data.status);
-      let newData = {};
+      let newData = {};      
 
       switch (data.acao.toLowerCase()) {
         case "recebimento":
@@ -105,7 +105,7 @@ class NotaFiscalController {
             STATUS_ID: statusId.id,
             USER_RECEBIDO: data.login,
             DT_RECEBIDO: new Date().toLocaleString("pt-br"),
-            ROMANEIO_ID: data.romaneioEntrada
+            ROMANEIOENTRADA_ID: data.romaneioEntrada
           };
           break;
         case "processamento":

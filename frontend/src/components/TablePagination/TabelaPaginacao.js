@@ -11,6 +11,7 @@ import {
 import "./Table.css";
 
 import api from "../../services/api";
+import Pagination from "../Pagination";
 
 function VerificarOrdenacao(chaveOrdenacao, currentOrder) {
   if (currentOrder === "up") {
@@ -286,6 +287,15 @@ class TabelaPaginacao extends React.Component {
     this.setPage(this.props.paginaInicial, dadosOrdenados);
   }
 
+  onPageChanged = data => {
+    const { currentPage, pageLimit } = data;
+
+    const offset = (currentPage - 1) * pageLimit;
+    const currentData = this.props.paginaInicial?.slice(offset, offset + pageLimit);
+
+    this.setPage(currentPage, currentData);
+  }
+
   renderizarPaginacao = () => {
     var paginador = this.state.paginador;
     if (!paginador.paginas || paginador.paginas.length <= 1) {
@@ -294,81 +304,82 @@ class TabelaPaginacao extends React.Component {
     }
 
     return (
-      <div className="container-pagination">
-        <nav>
-          <ul className="pagination">
-            <li
-              className={
-                paginador.paginaAtual === 1 ? "page-item disabled" : "page-item"
-              }
-            >
-              <button
-                onClick={() => this.setPage(1)}
-                className="primeiro-btn page-link"
-              >
-                Primeiro
-              </button>
-            </li>
-            <li
-              className={
-                paginador.paginaAtual === 1 ? "page-item disabled" : "page-item"
-              }
-            >
-              <button
-                onClick={() => this.setPage(paginador.paginaAtual - 1)}
-                className="page-link"
-              >
-                Anterior
-              </button>
-            </li>
-            {paginador.paginas.map((pagina, index) => (
-              <li
-                key={index}
-                className={
-                  paginador.paginaAtual === pagina
-                    ? "page-item active"
-                    : "page-item"
-                }
-              >
-                <button
-                  onClick={() => this.setPage(pagina)}
-                  className="page-link"
-                >
-                  {pagina}
-                </button>
-              </li>
-            ))}
-            <li
-              className={
-                paginador.paginaAtual === paginador.totalDePaginas
-                  ? "page-item  disabled"
-                  : "page-item"
-              }
-            >
-              <button
-                onClick={() => this.setPage(paginador.paginaAtual + 1)}
-                className="page-link"
-              >
-                Próximo
-              </button>
-            </li>
-            <li
-              className={
-                paginador.paginaAtual === paginador.totalDePaginas
-                  ? "page-item disabled"
-                  : "page-item"
-              }
-            >
-              <button
-                onClick={() => this.setPage(paginador.totalDePaginas)}
-                className="page-link"
-              >
-                Último
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </div>
+      <Pagination totalRecords={paginador.totalItens} pageLimit={18} pageNeighbours={1} onPageChanged={this.onPageChanged}/>
+      // <div className="container-pagination">
+      //   <nav>
+      //     <ul className="pagination">
+      //       <li
+      //         className={
+      //           paginador.paginaAtual === 1 ? "page-item disabled" : "page-item"
+      //         }
+      //       >
+      //         <button
+      //           onClick={() => this.setPage(1)}
+      //           className="primeiro-btn page-link"
+      //         >
+      //           Primeiro
+      //         </button>
+      //       </li>
+      //       <li
+      //         className={
+      //           paginador.paginaAtual === 1 ? "page-item disabled" : "page-item"
+      //         }
+      //       >
+      //         <button
+      //           onClick={() => this.setPage(paginador.paginaAtual - 1)}
+      //           className="page-link"
+      //         >
+      //           Anterior
+      //         </button>
+      //       </li>
+      //       {paginador.paginas.map((pagina, index) => (
+      //         <li
+      //           key={index}
+      //           className={
+      //             paginador.paginaAtual === pagina
+      //               ? "page-item active"
+      //               : "page-item"
+      //           }
+      //         >
+      //           <button
+      //             onClick={() => this.setPage(pagina)}
+      //             className="page-link"
+      //           >
+      //             {pagina}
+      //           </button>
+      //         </li>
+      //       ))}
+      //       <li
+      //         className={
+      //           paginador.paginaAtual === paginador.totalDePaginas
+      //             ? "page-item  disabled"
+      //             : "page-item"
+      //         }
+      //       >
+      //         <button
+      //           onClick={() => this.setPage(paginador.paginaAtual + 1)}
+      //           className="page-link"
+      //         >
+      //           Próximo
+      //         </button>
+      //       </li>
+      //       <li
+      //         className={
+      //           paginador.paginaAtual === paginador.totalDePaginas
+      //             ? "page-item disabled"
+      //             : "page-item"
+      //         }
+      //       >
+      //         <button
+      //           onClick={() => this.setPage(paginador.totalDePaginas)}
+      //           className="page-link"
+      //         >
+      //           Último
+      //         </button>
+      //       </li>
+      //     </ul>
+      //   </nav>
+      // </div>
     );
   };
 

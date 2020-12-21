@@ -245,6 +245,7 @@ class TabelaPaginacao extends React.Component {
 
     this.setState({ itensPesquisa: listagem });
     this.setPage(this.props.paginaInicial, listagem);
+    this.renderizarPaginacao()
   }
 
   onSort(chaveOrdenacao) {
@@ -302,9 +303,9 @@ class TabelaPaginacao extends React.Component {
       // Não exibir paginação caso não tenha registros suficientes para paginar
       return null;
     }
-
+   
     return (
-      <Pagination totalRecords={paginador.totalItens} pageLimit={18} pageNeighbours={1} onPageChanged={this.onPageChanged}/>
+      <Pagination totalRecords={paginador.totalItens} pageLimit={this.props.registrosPorPagina} pageNeighbours={1} onPageChanged={this.onPageChanged}/>
       // <div className="container-pagination">
       //   <nav>
       //     <ul className="pagination">

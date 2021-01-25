@@ -214,6 +214,7 @@ const Romaneios = () => {
           ]}
           footerTitulo={"Total romaneios:"}
           exportData={true}
+          tipoExportacao={"romaneios"}
           filterStatus={true}
           StatusValues={statusValues}
           filterDate={true}

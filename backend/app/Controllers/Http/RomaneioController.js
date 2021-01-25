@@ -6,9 +6,12 @@ const NotaFiscal = use("App/Models/NotaFiscal");
 const Romaneio = use("App/Models/Romaneio");
 const Status = use("App/Models/Status");
 const Motorista = use("App/Models/Motorista");
+const Loja = use("App/Models/Loja");
+const TipoVeiculo = use("App/Models/TipoVeiculo");
 
-const path = require("path");
+const json2xls = require("json2xls");
 const fs = require("fs");
+const path = require("path");
 
 const {
   geraInfoManifestoConsolidado,
@@ -42,7 +45,18 @@ class RomaneioController {
         .with("motorista")
         .fetch();
 
-      return romaneio;
+      const romaneioJSON = romaneio.toJSON();
+
+      if (romaneioJSON[0].ROMANEIOENTRADA) {
+        const nfs = await NotaFiscal.query()
+          .where("ROMANEIOENTRADA_ID", "=", romaneioJSON[0].id)
+          .with("status")
+          .fetch();
+        
+        romaneioJSON[0].nota_fiscal = nfs;
+      }
+
+      return romaneioJSON;
     } catch (error) {
       return response.status(500).send(error.message);
     }
@@ -340,6 +354,89 @@ class RomaneioController {
         .with("status")
         .with("motorista")
         .fetch();
+    } catch (error) {
+      return response.status(500).send(error.message);
+    }
+  }
+
+  async exportToCSV({ request, response }) {
+    function sleep(ms) {
+      return new Promise(resolve => {
+        setTimeout(resolve, ms);
+      });
+    }
+
+    try {
+      const romaneios = request.only(["data"]);
+
+      romaneios.data.map(async romaneio => {
+        romaneio.status_desc = romaneio.status[0].descricao;
+        romaneio.motorista_desc = romaneio.motorista.NOME;
+
+        const veiculo = await TipoVeiculo.find(romaneio.VEICULO);
+        romaneio.veiculo_desc = veiculo.tipo;
+
+        if (romaneio.USER_CRIACAO) {
+          const user = await Loja.find(romaneio.USER_CRIACAO);
+          romaneio.user_criacao_desc = user.login;
+        }
+
+        if (romaneio.USER_CONFERIDO) {
+          const user = await Loja.find(romaneio.USER_CONFERIDO);
+          romaneio.user_conferido_desc = user.login;
+        }
+
+        if (romaneio.USER_EMBARQUE) {
+          const user = await Loja.find(romaneio.USER_EMBARQUE);
+          romaneio.user_embarque_desc = user.login;
+        }
+
+        if (romaneio.USER_ENTREGA) {
+          const user = await Loja.find(romaneio.USER_ENTREGA);
+          romaneio.user_entrega_desc = user.login;
+        }
+
+        return romaneio;
+      });
+
+      await sleep(1000);
+
+      const fields = [
+        "id",
+        "PLACAVEICULO",
+        "DT_CONFERIDO",
+        "DT_EMBARQUE",
+        "user_criacao_desc",
+        "user_conferido_desc",
+        "user_embarque_desc",
+        "veiculo_desc",
+        "motorista_desc",
+        "DT_ENTREGA",
+        "user_entrega_desc",
+        "ROMANEIOENTRADA",
+        "status_desc",
+        "created_at"
+      ];
+      const opts = { fields };
+
+      if (romaneios) {
+        const xls = json2xls(romaneios.data, opts);
+        const filename = `2amigos-romaneios.xlsx`;
+
+        if (xls) {
+          fs.writeFileSync(
+            path.join(__dirname, "..", "..", "..", "tmp", "exports", filename),
+            xls,
+            "binary",
+            function(err) {
+              if (err) throw err;
+            }
+          );
+          return response.status(200).send();
+        }
+
+        return response.status(400).send({ message: "Erro ao exportar dados" });
+      }
     } catch (error) {
       return response.status(500).send(error.message);
     }

@@ -4,7 +4,7 @@ const fs = use("fs");
 const path = require("path");
 
 class DownloadController {
-  async download({ request, response }) {
+  async download({ request, response,params }) {
     let dataArquivo = new Date();
     const hora = dataArquivo.getHours();
     const min = dataArquivo.getMinutes();
@@ -14,9 +14,10 @@ class DownloadController {
       .replace("/", "-")
       .replace("/", "-");
     dataArquivo = `${dataArquivo}-${hora}-${min}-${seg}`
-    
-    const filename = `2amigos-notasfiscais.xlsx`;
-    const filenameDownload = `2amigos-notasfiscais${dataArquivo}.xlsx`;
+   
+    const tipoExport = params.type
+    const filename = `2amigos-${tipoExport == 'nf' ? 'notasfiscais' : 'romaneios' }.xlsx`;
+    const filenameDownload = `2amigos-${tipoExport == 'nf' ? 'notasfiscais' : 'romaneios' }${dataArquivo}.xlsx`;
     const file = path.join(
       __dirname,
       "..",

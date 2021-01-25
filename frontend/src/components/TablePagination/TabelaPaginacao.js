@@ -422,8 +422,14 @@ class TabelaPaginacao extends React.Component {
         return;
       }
 
-      await api.post("/nf/export/csv", { data: fonteDados });
-      window.open(`${process.env.REACT_APP_API_URL}/download`);
+      if(this.props.tipoExportacao === 'nf'){
+        await api.post("/nf/export/csv", { data: fonteDados });
+        window.open(`${process.env.REACT_APP_API_URL}/download/nf`);
+      }else{
+        await api.post("/romaneio/export/csv", { data: fonteDados });
+        window.open(`${process.env.REACT_APP_API_URL}/download/romaneios`);
+      }
+      
     } catch (error) {
       this.setState({
         ...this.state,

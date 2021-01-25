@@ -181,6 +181,7 @@ class Dashboard extends Component {
             DateColumnFilter={"DT_EMISSAO"}
             StatusValues={statusValues}
             exportData={true}
+            tipoExportacao={"nf"}
           />
         </Container>
       </PageDefault>

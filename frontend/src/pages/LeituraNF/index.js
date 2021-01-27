@@ -113,7 +113,8 @@ function Leitura() {
           const nfsFiltered = nfs.filter((nf) => nf.CHAVE_NF !== codigo.trim());
           setNfs(nfsFiltered);
 
-          handleReset();
+          // handleReset();
+          setCodBarra("");
         }
       }
     } catch (error) {

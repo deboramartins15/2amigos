@@ -159,6 +159,7 @@ class NotaFiscalController {
           .send({ error: "Informe o código de barra!" });
       }
 
+      console.log(params.codBarra)
       const nf = await NotaFiscal.query()
         .where("CHAVE_NF", "=", params.codBarra)
         .with("status")

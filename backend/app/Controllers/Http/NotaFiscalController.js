@@ -65,7 +65,7 @@ class NotaFiscalController {
         VOLUME: NF.nfeProc.NFe.infNFe.transp.vol.qVol,
         PESO_LIQ: NF.nfeProc.NFe.infNFe.transp.vol.pesoL,
         PESO_BRUTO: NF.nfeProc.NFe.infNFe.transp.vol.pesoB,
-        DT_INTEGRACAO: new Date().toLocaleString("pt-br"),
+        DT_INTEGRACAO: new Date(),//.toLocaleString("pt-br"),
         USER_INTEGRACAO: userIntegracao.login,
         STATUS_ID: statusIntegracao.id
       };
@@ -97,7 +97,7 @@ class NotaFiscalController {
 
       const NF = await NotaFiscal.findOrFail(params.id);
       const statusId = await Status.findBy("descricao", data.status);
-      let newData = {};      
+      let newData = {};
 
       switch (data.acao.toLowerCase()) {
         case "recebimento":

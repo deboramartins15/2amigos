@@ -133,7 +133,7 @@ class RomaneioController {
             newData = {
               STATUS_ID: statusId.id,
               USER_CONFERIDO: data.login,
-              DT_CONFERIDO: new Date().toLocaleString("pt-br"),
+              DT_CONFERIDO: new Date(),
               PLACAVEICULO: data.placa,
               MOTORISTA: data.motorista
             };
@@ -142,14 +142,14 @@ class RomaneioController {
             newData = {
               STATUS_ID: statusId.id,
               USER_EMBARQUE: data.login,
-              DT_EMBARQUE: new Date().toLocaleString("pt-br")
+              DT_EMBARQUE: new Date()
             };
             break;
           case "entrega":
             newData = {
               STATUS_ID: statusId.id,
               USER_ENTREGA: data.login,
-              DT_ENTREGA: new Date().toLocaleString("pt-br")
+              DT_ENTREGA: new Date()
             };
             break;
         }

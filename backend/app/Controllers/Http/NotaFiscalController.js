@@ -65,7 +65,7 @@ class NotaFiscalController {
         VOLUME: NF.nfeProc.NFe.infNFe.transp.vol.qVol,
         PESO_LIQ: NF.nfeProc.NFe.infNFe.transp.vol.pesoL,
         PESO_BRUTO: NF.nfeProc.NFe.infNFe.transp.vol.pesoB,
-        DT_INTEGRACAO: new Date(),//.toLocaleString("pt-br"),
+        DT_INTEGRACAO: new Date(),
         USER_INTEGRACAO: userIntegracao.login,
         STATUS_ID: statusIntegracao.id
       };
@@ -104,7 +104,7 @@ class NotaFiscalController {
           newData = {
             STATUS_ID: statusId.id,
             USER_RECEBIDO: data.login,
-            DT_RECEBIDO: new Date(),//.toLocaleString("pt-br"),
+            DT_RECEBIDO: new Date(),
             ROMANEIOENTRADA_ID: data.romaneioEntrada
           };
           break;
@@ -112,21 +112,21 @@ class NotaFiscalController {
           newData = {
             STATUS_ID: statusId.id,
             USER_PROCESSO: data.login,
-            DT_PROCESSO: new Date()//.toLocaleString("pt-br")
+            DT_PROCESSO: new Date()
           };
           break;
         case "expedicao":
           newData = {
             STATUS_ID: statusId.id,
             USER_EXPEDICAO: data.login,
-            DT_EXPEDICAO: new Date()//.toLocaleString("pt-br")
+            DT_EXPEDICAO: new Date()
           };
           break;
         case "entrega":
           newData = {
             STATUS_ID: statusId.id,
             USER_ENTREGUE: data.login,
-            DT_ENTREGUE: new Date()//.toLocaleString("pt-br")
+            DT_ENTREGUE: new Date()
           };
           break;
       }
@@ -159,7 +159,7 @@ class NotaFiscalController {
           .send({ error: "Informe o código de barra!" });
       }
 
-      console.log(params.codBarra)
+      console.log(params.codBarra);
       const nf = await NotaFiscal.query()
         .where("CHAVE_NF", "=", params.codBarra)
         .with("status")

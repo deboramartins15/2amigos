@@ -52,7 +52,7 @@ class RomaneioController {
           .where("ROMANEIOENTRADA_ID", "=", romaneioJSON[0].id)
           .with("status")
           .fetch();
-        
+
         romaneioJSON[0].nota_fiscal = nfs;
       }
 
@@ -82,6 +82,9 @@ class RomaneioController {
         VEICULO: dataRequest.veiculo,
         STATUS_ID: statusPendente.id
       };
+
+      if(!data.PLACAVEICULO || !data.MOTORISTA || !data.USER_CRIACAO || !data.VEICULO || !data.STATUS_ID)
+        return response.status(400).send("Dados do romaneio não informados");
 
       if (dataRequest.romaneioEntrada) {
         data.ROMANEIOENTRADA = true;
@@ -437,6 +440,8 @@ class RomaneioController {
 
         return response.status(400).send({ message: "Erro ao exportar dados" });
       }
+
+      return response.status(400).send({ message: "Sem dados para exportar" });
     } catch (error) {
       return response.status(500).send(error.message);
     }

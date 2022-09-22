@@ -104,7 +104,7 @@ class NotaFiscalController {
           newData = {
             STATUS_ID: statusId.id,
             USER_RECEBIDO: data.login,
-            DT_RECEBIDO: new Date().toLocaleString("pt-br"),
+            DT_RECEBIDO: new Date(),//.toLocaleString("pt-br"),
             ROMANEIOENTRADA_ID: data.romaneioEntrada
           };
           break;
@@ -112,21 +112,21 @@ class NotaFiscalController {
           newData = {
             STATUS_ID: statusId.id,
             USER_PROCESSO: data.login,
-            DT_PROCESSO: new Date().toLocaleString("pt-br")
+            DT_PROCESSO: new Date()//.toLocaleString("pt-br")
           };
           break;
         case "expedicao":
           newData = {
             STATUS_ID: statusId.id,
             USER_EXPEDICAO: data.login,
-            DT_EXPEDICAO: new Date().toLocaleString("pt-br")
+            DT_EXPEDICAO: new Date()//.toLocaleString("pt-br")
           };
           break;
         case "entrega":
           newData = {
             STATUS_ID: statusId.id,
             USER_ENTREGUE: data.login,
-            DT_ENTREGUE: new Date().toLocaleString("pt-br")
+            DT_ENTREGUE: new Date()//.toLocaleString("pt-br")
           };
           break;
       }
@@ -234,6 +234,8 @@ class NotaFiscalController {
 
         return response.status(400).send({ message: "Erro ao exportar dados" });
       }
+
+      return response.status(400).send({ message: "Sem dados para exportar" });
     } catch (error) {
       return response.status(500).send(error.message);
     }

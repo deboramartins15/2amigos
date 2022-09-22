@@ -61,7 +61,7 @@ async function getJsonFromXML(xml) {
 
     await Drive.delete(Helpers.tmpPath("uploads") + "/" + xml.fileName);
 
-    return json;
+    if(json?.nfeProc?.protNFe?.infProt?.chNFe) return json;
   }
 
   return {};
@@ -72,10 +72,13 @@ async function geraInfoManifestoConsolidado(romaneioId) {
   await romaneio.load("motorista")
 
   const nfs = await NotaFiscal.query()
-    .where("ROMANEIO_ID", "=", romaneioId)    
+    .where("ROMANEIO_ID", "=", romaneioId)
     .fetch();
 
   const nfsJSON = nfs.toJSON();
+
+  if(nfsJSON.length == 0) throw new Error("Não foi possível gerar o relatório");
+  
   let totalNf = 0;
   let totalVolume = 0;
   let totalPeso = 0;
@@ -106,6 +109,8 @@ async function geraInfoManifestoDestinatario(romaneioId) {
     .fetch();
 
   const nfsJSON = nfs.toJSON();
+
+  if(nfsJSON.length == 0) throw new Error("Não foi possível gerar o relatório");
 
   const destinatarios = nfsJSON.reduce(
     (
@@ -346,7 +351,7 @@ async function criaPDFDestinatarios(destinatarios) {
           "..",
           "tmp",
           "logo-2amigos.jpeg"
-        )} alt="logo" />      
+        )} alt="logo" />
         <h1 class="title">Manifesto 2 Amigos</h1>
         <p>
           <strong>Romaneio:</strong> ${destinatarios.romaneio.id}
@@ -377,9 +382,9 @@ async function criaPDFDestinatarios(destinatarios) {
             <tfooter>
             <tr>
               <td>Totais:</td>
-              <td>${destinatarios.nfs[nf].totais.QtdNfs}</td>            
-              <td>${destinatarios.nfs[nf].totais.totalVolume}</td> 
-              <td>${destinatarios.nfs[nf].totais.peso}</td>           
+              <td>${destinatarios.nfs[nf].totais.QtdNfs}</td>
+              <td>${destinatarios.nfs[nf].totais.totalVolume}</td>
+              <td>${destinatarios.nfs[nf].totais.peso}</td>
               <td>${destinatarios.nfs[nf].totais.totalNf}</td>
             </tr>
           </tfooter>
@@ -409,12 +414,12 @@ async function criaPDFDestinatarios(destinatarios) {
       "exports",
       `relEmbarque-${nf}.pdf`
     );
-  
+
     pdf.create(html).toFile(filepath, (err, res) => {
       if (err) console.log(err);
     });
   })
-  
+
 }
 
 module.exports = {

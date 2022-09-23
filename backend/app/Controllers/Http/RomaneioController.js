@@ -1,6 +1,7 @@
 "use strict";
 
 const Mail = use("Mail");
+const Env = use("Env");
 
 const NotaFiscal = use("App/Models/NotaFiscal");
 const Romaneio = use("App/Models/Romaneio");
@@ -83,7 +84,13 @@ class RomaneioController {
         STATUS_ID: statusPendente.id
       };
 
-      if(!data.PLACAVEICULO || !data.MOTORISTA || !data.USER_CRIACAO || !data.VEICULO || !data.STATUS_ID)
+      if (
+        !data.PLACAVEICULO ||
+        !data.MOTORISTA ||
+        !data.USER_CRIACAO ||
+        !data.VEICULO ||
+        !data.STATUS_ID
+      )
         return response.status(400).send("Dados do romaneio não informados");
 
       if (dataRequest.romaneioEntrada) {
@@ -181,26 +188,26 @@ class RomaneioController {
         await criaPDFConsolidado(consolidado);
         await criaPDFDestinatarios(destinatarios);
 
-        await Mail.send("welcome", romaneio.toJSON(), message => {
-          message
-            .to("transporte@2amigos.com.br")
-            .from("2amigostransportadora@gmail.com")
-            .subject("Embarque 2 Amigos")
-            .attach(
-              path.join(
-                __dirname,
-                "..",
-                "..",
-                "..",
-                "tmp",
-                "exports",
-                "relConsolidado.pdf"
-              ),
-              {
-                filename: "Embarque2Amigos.pdf"
-              }
-            );
-        });
+        // await Mail.send("welcome", romaneio.toJSON(), message => {
+        //   message
+        //     .to(Env.get("MAIL_USERNAME"))
+        //     .from(Env.get("MAIL_USERNAME"))
+        //     .subject("Embarque 2 Amigos")
+        //     .attach(
+        //       path.join(
+        //         __dirname,
+        //         "..",
+        //         "..",
+        //         "..",
+        //         "tmp",
+        //         "exports",
+        //         "relConsolidado.pdf"
+        //       ),
+        //       {
+        //         filename: "Embarque2Amigos.pdf"
+        //       }
+        //     );
+        // });
 
         fs.unlinkSync(
           path.join(
@@ -226,19 +233,19 @@ class RomaneioController {
           )
         );
 
-        anexos.map(async anexo => {
-          await Mail.send("welcome", romaneio.toJSON(), message => {
-            message
-              .to("transporte@2amigos.com.br")
-              .from("2amigostransportadora@gmail.com")
-              .subject("Manifesto 2 Amigos")
-              .attach(anexo, {
-                filename: `Manifesto2Amigos.pdf`
-              });
-          });
+        // anexos.map(async anexo => {
+        //   await Mail.send("welcome", romaneio.toJSON(), message => {
+        //     message
+        //       .to(Env.get("MAIL_USERNAME"))
+        //       .from(Env.get("MAIL_USERNAME"))
+        //       .subject("Manifesto 2 Amigos")
+        //       .attach(anexo, {
+        //         filename: `Manifesto2Amigos.pdf`
+        //       });
+        //   });
 
-          fs.unlinkSync(anexo);
-        });
+        //   fs.unlinkSync(anexo);
+        // });
       }
 
       return response.status(200).send(romaneio);
@@ -284,26 +291,26 @@ class RomaneioController {
       await criaPDFConsolidado(consolidado);
       await criaPDFDestinatarios(destinatarios);
 
-      await Mail.send("welcome", romaneio.toJSON(), message => {
-        message
-          .to("transporte@2amigos.com.br")
-          .from("2amigostransportadora@gmail.com")
-          .subject("Embarque 2 Amigos")
-          .attach(
-            path.join(
-              __dirname,
-              "..",
-              "..",
-              "..",
-              "tmp",
-              "exports",
-              "relConsolidado.pdf"
-            ),
-            {
-              filename: "Embarque2Amigos.pdf"
-            }
-          );
-      });
+      // await Mail.send("welcome", romaneio.toJSON(), message => {
+      //   message
+      //     .to(Env.get("MAIL_USERNAME"))
+      //     .from(Env.get("MAIL_USERNAME"))
+      //     .subject("Embarque 2 Amigos")
+      //     .attach(
+      //       path.join(
+      //         __dirname,
+      //         "..",
+      //         "..",
+      //         "..",
+      //         "tmp",
+      //         "exports",
+      //         "relConsolidado.pdf"
+      //       ),
+      //       {
+      //         filename: "Embarque2Amigos.pdf"
+      //       }
+      //     );
+      // });
 
       fs.unlinkSync(
         path.join(
@@ -329,19 +336,19 @@ class RomaneioController {
         )
       );
 
-      anexos.map(async anexo => {
-        await Mail.send("welcome", romaneio.toJSON(), message => {
-          message
-            .to("transporte@2amigos.com.br")
-            .from("2amigostransportadora@gmail.com")
-            .subject("Manifesto 2 Amigos")
-            .attach(anexo, {
-              filename: `Manifesto2Amigos.pdf`
-            });
-        });
+      // anexos.map(async anexo => {
+      //   await Mail.send("welcome", romaneio.toJSON(), message => {
+      //     message
+      //       .to(Env.get("MAIL_USERNAME"))
+      //       .from(Env.get("MAIL_USERNAME"))
+      //       .subject("Manifesto 2 Amigos")
+      //       .attach(anexo, {
+      //         filename: `Manifesto2Amigos.pdf`
+      //       });
+      //   });
 
-        fs.unlinkSync(anexo);
-      });
+      //   fs.unlinkSync(anexo);
+      // });
 
       return response.status(200).send(romaneio);
     } catch (error) {

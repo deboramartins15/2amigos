@@ -19,6 +19,7 @@
     "lodash": "^4.17.20",
     "react": "^16.13.1",
     "react-circular-progressbar": "^2.0.3",
+    "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^16.13.1",
     "react-dropzone": "^11.1.0",
     "react-icons": "^3.11.0",

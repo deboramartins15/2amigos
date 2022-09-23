@@ -7,6 +7,7 @@ import {
   faSortDown,
   faSortUp,
 } from "@fortawesome/free-solid-svg-icons";
+import copy from "copy-to-clipboard"; 
 
 import "./Table.css";
 
@@ -53,6 +54,7 @@ class TabelaPaginacao extends React.Component {
       nomeArquivoExportacao: null,
       dataInicialBusca: "",
       dataFinalBusca: "",
+      copied: false
     };
 
     this.onPesquisar = this.onPesquisar.bind(this);
@@ -65,6 +67,15 @@ class TabelaPaginacao extends React.Component {
     if (this.props.fonteDeDados !== prevProps.fonteDeDados) {
       this.setPage(this.props.initialPage, this.props.fonteDeDados);
     }
+  }
+
+  copyToClipboard(text) {
+    copy(text);
+    // alert(`You have copied "${text}"`);
+    this.setState({
+      ...this.state,
+      copied: true,
+    });
   }
 
   setPage(pagina, dadosParaPaginar = null) {
@@ -203,7 +214,7 @@ class TabelaPaginacao extends React.Component {
       if (
         this.state.colunaParaPesquisar === "matriz" ||
         this.state.colunaParaPesquisar === "transportadora" ||
-        this.state.colunaParaPesquisar === "ROMANEIOENTRADA" 
+        this.state.colunaParaPesquisar === "ROMANEIOENTRADA"
       ) {
         listagem = listagem.filter((x) => {
           if (textoPesquisaMinimizado === "sim") {
@@ -245,7 +256,7 @@ class TabelaPaginacao extends React.Component {
 
     this.setState({ itensPesquisa: listagem });
     this.setPage(this.props.paginaInicial, listagem);
-    this.renderizarPaginacao()
+    this.renderizarPaginacao();
   }
 
   onSort(chaveOrdenacao) {
@@ -288,14 +299,17 @@ class TabelaPaginacao extends React.Component {
     this.setPage(this.props.paginaInicial, dadosOrdenados);
   }
 
-  onPageChanged = data => {
+  onPageChanged = (data) => {
     const { currentPage, pageLimit } = data;
 
     const offset = (currentPage - 1) * pageLimit;
-    const currentData = this.props.paginaInicial?.slice(offset, offset + pageLimit);
+    const currentData = this.props.paginaInicial?.slice(
+      offset,
+      offset + pageLimit
+    );
 
     this.setPage(currentPage, currentData);
-  }
+  };
 
   renderizarPaginacao = () => {
     var paginador = this.state.paginador;
@@ -303,9 +317,14 @@ class TabelaPaginacao extends React.Component {
       // Não exibir paginação caso não tenha registros suficientes para paginar
       return null;
     }
-   
+
     return (
-      <Pagination totalRecords={paginador.totalItens} pageLimit={this.props.registrosPorPagina} pageNeighbours={1} onPageChanged={this.onPageChanged}/>
+      <Pagination
+        totalRecords={paginador.totalItens}
+        pageLimit={this.props.registrosPorPagina}
+        pageNeighbours={1}
+        onPageChanged={this.onPageChanged}
+      />
       // <div className="container-pagination">
       //   <nav>
       //     <ul className="pagination">
@@ -399,6 +418,7 @@ class TabelaPaginacao extends React.Component {
       nomeArquivoExportacao: null,
       msgErroExportacao: null,
       corMsgExportacao: "info",
+      copied: false
     });
   }
 
@@ -422,14 +442,13 @@ class TabelaPaginacao extends React.Component {
         return;
       }
 
-      if(this.props.tipoExportacao === 'nf'){
+      if (this.props.tipoExportacao === "nf") {
         await api.post("/nf/export/csv", { data: fonteDados });
         window.open(`${process.env.REACT_APP_API_URL}/download/nf`);
-      }else{
+      } else {
         await api.post("/romaneio/export/csv", { data: fonteDados });
         window.open(`${process.env.REACT_APP_API_URL}/download/romaneios`);
       }
-      
     } catch (error) {
       this.setState({
         ...this.state,
@@ -448,6 +467,7 @@ class TabelaPaginacao extends React.Component {
       arquivoExportacao,
       msgErroExportacao,
       corMsgExportacao,
+      copied
     } = this.state;
     const {
       fonteDeDados,
@@ -581,6 +601,15 @@ class TabelaPaginacao extends React.Component {
                 {msgErroExportacao && <span>{msgErroExportacao}</span>}
               </Alert>
             )}
+            {(copied) && (
+              <Alert
+                color="success"
+                isOpen={this.state.copied}
+                toggle={this.onDismiss}
+              >
+                Chave copiada!
+              </Alert>
+            )}
           </Row>
         </Form>
 
@@ -661,6 +690,12 @@ class TabelaPaginacao extends React.Component {
                           return (
                             <td key={coluna}>
                               {linha[coluna] === true ? "Sim" : "Não"}
+                            </td>
+                          );
+                        case "CHAVE_NF":
+                          return (
+                            <td key={coluna} style={{cursor: "pointer"}} onClick={() => this.copyToClipboard(linha[coluna])}>
+                              {linha[coluna]}
                             </td>
                           );
                         default:
